@@ -58,3 +58,5 @@ Alpha, but functional.
 Transitions, enter/exit callbacks, internal action callbacks, and code generation by introspection into a PlayMaker FSM all working.
 
 Still needs much more documentation, unit tests, support for IgnoreEventAction, better error handling in the UI, potentially support for delegate arguments (maybe), and a bunch of other stuff.
+
+**Note:** Right now the editor side of things is using the `CompilationPipeline` class added in Unity 2017.3. I will try and kludge together a fallback option for older versions of Unity.
