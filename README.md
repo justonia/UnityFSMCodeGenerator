@@ -23,6 +23,10 @@ And not be forced by hand to write this:
 
 ![Tedious C# code](https://github.com/justonia/UnityFSMCodeGenerator/raw/master/Docs/telephone_code_2.png)
 
+Just to call your fancy well-architected code like this:
+
+![Look ma', interfaces](https://github.com/justonia/UnityFSMCodeGenerator/raw/master/Docs/telephone_code_3.png)
+
 **Well now you can!**
 
 ## Gory Details
