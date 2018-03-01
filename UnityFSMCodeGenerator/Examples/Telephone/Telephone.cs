@@ -88,7 +88,7 @@ namespace UnityFSMCodeGenerator.Examples
             ringer.volume = startVolume;
             voice.volume = startVolume;
 
-            imageAnimator.enabled = false;
+            //imageAnimator.enabled = false;
 
             statusMessage.text = "";
         }
@@ -275,7 +275,8 @@ namespace UnityFSMCodeGenerator.Examples
                 yield return null;
             }
             
-            imageAnimator.enabled = false;
+            //imageAnimator.enabled = false;
+            imageAnimator.Play("Empty");
             pulsing = null;
         }
 
