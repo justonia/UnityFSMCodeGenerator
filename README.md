@@ -37,7 +37,7 @@ Once a C# FSM is generated from a PlayMaker FSM, you can copy and paste and shar
 
 WIP: See the telephone example under Examples/Telephone. The TelephoneFSM.prefab has a PlayMakerCodeGenerator script on it that creates the TelephoneFSM.Generated.cs file.
 
-**Note:** You will need your own copy of PlayMaker to be able to modify the visual FSM, but the example will perfectly fine without it. 
+**Note:** You will need your own copy of PlayMaker to be able to modify the visual FSM, but the example will work perfectly fine without it. 
 
 ## Status
 
