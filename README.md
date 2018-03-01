@@ -9,7 +9,7 @@ There are great libraries for building an FSM in code (see <https://github.com/d
 
 Thankfully there is a great visual FSM designer on the Unity asset store: [PlayMaker](https://www.assetstore.unity3d.com/en/#!/content/368).
 
-Sure it's great, you can write custom actions and visually script gameplay -- cool, 100% worth the $65 trust me. But it doesn't help you at all when you absolutely and unequivocally need FSM logic in code (debuggability, performance, portability, versioning, etc etc). 
+Sure it's great, you can write custom actions and visually script gameplay -- cool, 100% worth the $65 trust me. But it doesn't help you at all when you absolutely and unequivocally need FSM logic in code (debuggability, performance, portability, better versioning support, etc etc). 
 
 Wouldn't it be great if you could visually design this:
 
