@@ -13,19 +13,19 @@ Sure it's great, you can write custom actions and visually script gameplay -- co
 
 Wouldn't it be great if you could visually design this:
 
-![A telephone FSM](https://github.com/justonia/UnityFSMCodeGenerator/raw/master/Docs/telephone_playmaker_fsm.PNG)
+![A telephone FSM](https://github.com/justonia/UnityFSMCodeGenerator/raw/master/Docs/telephone_playmaker_fsm_v02.PNG)
 
 And through some hand-wavy magic end up with this:
 
-![C# code](https://github.com/justonia/UnityFSMCodeGenerator/raw/master/Docs/telephone_code_1.png)
+![C# code](https://github.com/justonia/UnityFSMCodeGenerator/raw/master/Docs/telephone_code_1_v02.png)
 
 And not be forced by hand to write this:
 
-![Tedious C# code](https://github.com/justonia/UnityFSMCodeGenerator/raw/master/Docs/telephone_code_2.png)
+![Tedious C# code](https://github.com/justonia/UnityFSMCodeGenerator/raw/master/Docs/telephone_code_2_v02.png)
 
 Just to call your fancy well-architected code like this:
 
-![Look ma', interfaces](https://github.com/justonia/UnityFSMCodeGenerator/raw/master/Docs/telephone_code_3.png)
+![Look ma', interfaces](https://github.com/justonia/UnityFSMCodeGenerator/raw/master/Docs/telephone_code_3_v02.png)
 
 **Well now you can!**
 
