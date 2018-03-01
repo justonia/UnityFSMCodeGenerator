@@ -1,5 +1,5 @@
 # Unity FSM Code Generator
-C# code generation tool for finite state machines in Unity that can also parse a declarative PlayMaker FSM.
+C# code generation tool for finite state machines in Unity that can also parse a declarative PlayMaker FSM. Also has a super boring name.
 
 ## Motivation
 
