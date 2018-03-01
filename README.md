@@ -45,6 +45,8 @@ WIP: See the telephone example under Examples/Telephone. The TelephoneFSM.prefab
 
 ## Status
 
-Functional transitions, internal actions, and code generation by introspection into a PlayMaker FSM. 
+Alpha, but functional.
+
+Transitions, enter/exit callbacks, internal action callbacks, and code generation by introspection into a PlayMaker FSM all working.
 
 Still needs much more documentation, unit tests, support for IgnoreEventAction, better error handling in the UI, potentially support for delegate arguments (maybe), and a bunch of other stuff.
