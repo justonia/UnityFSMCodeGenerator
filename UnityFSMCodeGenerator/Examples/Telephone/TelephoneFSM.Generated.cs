@@ -13,7 +13,7 @@ namespace UnityFSMCodeGenerator.Examples
     // This FSM models a simple telephone that is capable of receiving calls, putting them on hold, or leaving a message.
     public class TelephoneFSM :  UnityFSMCodeGenerator.BaseFsm 
     {
-        public readonly static string GeneratedFromPrefab = "Assets/UnityFSMCodeGenerator/Examples/Telephone/TelephoneFSM.prefab";
+        public readonly static string GeneratedFromPrefab = "Assets/UnityFSMCodeGenerator/UnityFSMCodeGenerator/Examples/Telephone/TelephoneFSM.prefab";
         public readonly static string GeneratedFromGUID = "3045bb4d728b8b5478f1e8a3ed6bab84";
     
         public enum State
@@ -22,6 +22,7 @@ namespace UnityFSMCodeGenerator.Examples
             Ringing,
             Connected,
             OnHold,
+            DisconnectCall,
         }
     
         public const State START_STATE = State.OffHook;
@@ -42,9 +43,9 @@ namespace UnityFSMCodeGenerator.Examples
         public interface IContext : UnityFSMCodeGenerator.IFsmContext
         {
             State State { get; set; }
-            UnityFSMCodeGenerator.Examples.ITelephoneConnected TelephoneConnected { get; }
-            UnityFSMCodeGenerator.Examples.ITelephoneHaptics TelephoneHaptics { get; }
-            UnityFSMCodeGenerator.Examples.IVolumeControl VolumeControl { get; }
+            UnityFSMCodeGenerator.Examples.IAudioControl AudioControl { get; }
+            UnityFSMCodeGenerator.Examples.IHaptics Haptics { get; }
+            UnityFSMCodeGenerator.Examples.ITelephone Telephone { get; }
         }
     
         #region Public Methods
@@ -78,14 +79,14 @@ namespace UnityFSMCodeGenerator.Examples
         }
         
         public static IContext NewDefaultContext(
-            UnityFSMCodeGenerator.Examples.ITelephoneConnected telephoneConnected,
-            UnityFSMCodeGenerator.Examples.ITelephoneHaptics telephoneHaptics,
-            UnityFSMCodeGenerator.Examples.IVolumeControl volumeControl,
+            UnityFSMCodeGenerator.Examples.IAudioControl audioControl,
+            UnityFSMCodeGenerator.Examples.IHaptics haptics,
+            UnityFSMCodeGenerator.Examples.ITelephone telephone,
             State startState = START_STATE)
         {
             return new DefaultContext{
                 State = startState,
-                TelephoneConnected = telephoneConnected, TelephoneHaptics = telephoneHaptics, VolumeControl = volumeControl, 
+                AudioControl = audioControl, Haptics = haptics, Telephone = telephone, 
             };
         }
     
@@ -108,9 +109,9 @@ namespace UnityFSMCodeGenerator.Examples
         private class DefaultContext : IContext
         {
             public State State { get; set; }
-            public UnityFSMCodeGenerator.Examples.ITelephoneConnected TelephoneConnected { get; set; }
-            public UnityFSMCodeGenerator.Examples.ITelephoneHaptics TelephoneHaptics { get; set; }
-            public UnityFSMCodeGenerator.Examples.IVolumeControl VolumeControl { get; set; }
+            public UnityFSMCodeGenerator.Examples.IAudioControl AudioControl { get; set; }
+            public UnityFSMCodeGenerator.Examples.IHaptics Haptics { get; set; }
+            public UnityFSMCodeGenerator.Examples.ITelephone Telephone { get; set; }
             
         }
     
@@ -171,6 +172,11 @@ namespace UnityFSMCodeGenerator.Examples
                         SwitchState(from, State.Connected);
                     }
                     break;        
+                case Event.HungUp:
+                    if (TransitionTo(State.OffHook, from)) {
+                        SwitchState(from, State.OffHook);
+                    }
+                    break;        
                 default:
                     if (!HandleInternalActions(from, _event)) {
                         throw new System.Exception(string.Format("Unhandled event '{0}' in state '{1}'", _event.ToString(), context.State.ToString()));
@@ -182,8 +188,8 @@ namespace UnityFSMCodeGenerator.Examples
             case State.Connected:
                 switch (_event) {        
                 case Event.LeftMessage:
-                    if (TransitionTo(State.OffHook, from)) {
-                        SwitchState(from, State.OffHook);
+                    if (TransitionTo(State.DisconnectCall, from)) {
+                        SwitchState(from, State.DisconnectCall);
                     }
                     break;        
                 case Event.OnHold:
@@ -192,8 +198,8 @@ namespace UnityFSMCodeGenerator.Examples
                     }
                     break;        
                 case Event.HungUp:
-                    if (TransitionTo(State.OffHook, from)) {
-                        SwitchState(from, State.OffHook);
+                    if (TransitionTo(State.DisconnectCall, from)) {
+                        SwitchState(from, State.DisconnectCall);
                     }
                     break;        
                 default:
@@ -211,6 +217,21 @@ namespace UnityFSMCodeGenerator.Examples
                         SwitchState(from, State.Connected);
                     }
                     break;        
+                case Event.HungUp:
+                    if (TransitionTo(State.DisconnectCall, from)) {
+                        SwitchState(from, State.DisconnectCall);
+                    }
+                    break;        
+                default:
+                    if (!HandleInternalActions(from, _event)) {
+                        throw new System.Exception(string.Format("Unhandled event '{0}' in state '{1}'", _event.ToString(), context.State.ToString()));
+                    }
+                    break;
+                }
+                break;
+        
+            case State.DisconnectCall:
+                switch (_event) {        
                 case Event.HungUp:
                     if (TransitionTo(State.OffHook, from)) {
                         SwitchState(from, State.OffHook);
@@ -234,29 +255,18 @@ namespace UnityFSMCodeGenerator.Examples
             var handled = false;
         
             switch (state) {
-            case State.Ringing:
-                switch (_event) {        
-                case Event.ChangeVolume:
-                    context.VolumeControl.ChangeVolume();
-                    handled = true;
-                    break;        
-                default:
-                    break;
-                }
-                break;
-        
             case State.Connected:
                 switch (_event) {        
                 case Event.MuteMicrophone:
-                    context.VolumeControl.Mute();
+                    context.AudioControl.Mute();
                     handled = true;
                     break;        
                 case Event.UnmuteMicrophone:
-                    context.VolumeControl.Unmute();
+                    context.AudioControl.Unmute();
                     handled = true;
                     break;        
                 case Event.ChangeVolume:
-                    context.VolumeControl.ChangeVolume();
+                    context.AudioControl.ChangeVolume();
                     handled = true;
                     break;        
                 default:
@@ -290,12 +300,17 @@ namespace UnityFSMCodeGenerator.Examples
             case State.OffHook:
                 break;
             case State.Ringing:
-                context.TelephoneHaptics.Pulse();
+                context.AudioControl.StartRinging();
+                context.Haptics.Pulse();
                 break;
             case State.Connected:
-                context.TelephoneConnected.OnEnter();
+                context.Telephone.ConnectedToCall();
                 break;
             case State.OnHold:
+                context.Telephone.SuspendCall();
+                break;
+            case State.DisconnectCall:
+                context.Telephone.DisconnectCall();
                 break;
             }
         }
@@ -307,11 +322,13 @@ namespace UnityFSMCodeGenerator.Examples
             case State.OffHook:
                 break;
             case State.Ringing:
+                context.AudioControl.StopRinging();
                 break;
             case State.Connected:
-                context.TelephoneConnected.OnExit();
                 break;
             case State.OnHold:
+                break;
+            case State.DisconnectCall:
                 break;
             }
         }

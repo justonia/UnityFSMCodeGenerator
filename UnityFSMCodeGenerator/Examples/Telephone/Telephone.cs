@@ -29,80 +29,256 @@ using System.Collections.Generic;
 
 namespace UnityFSMCodeGenerator.Examples
 {
-    public interface ITelephoneConnected : IFsmActionDelegate
+    public interface ITelephone : IFsmActionDelegate
     {
-        void OnEnter();
-        void OnExit();
+        void ConnectedToCall();
+        void SuspendCall();
+        void DisconnectCall();
     }
 
-    public interface ITelephoneOffHook : IFsmActionDelegate
-    {
-        void OnExit();
-    }
-
-    public interface ITelephoneHaptics : IFsmActionDelegate
+    public interface IHaptics : IFsmActionDelegate
     {
         void Pulse();
     }
 
-    public interface IVolumeControl : IFsmActionDelegate
+    public interface IAudioControl : IFsmActionDelegate
     {
+        void StartRinging();
+        void StopRinging();
         void Mute();
         void Unmute();
         void ChangeVolume();
+        void VolumeUp();
+        void VolumeDown();
     }
 
     public class Telephone : MonoBehaviour, 
-        ITelephoneConnected, 
-        ITelephoneOffHook, 
-        ITelephoneHaptics, 
-        IVolumeControl
+        ITelephone,
+        IAudioControl,
+        IHaptics
     {
         private TelephoneFSM fsm;
         private TelephoneFSM.IContext context;
+        private float volume;
+        private Coroutine ringing;
+        private Coroutine pulsing;
+        private bool listenToggleChange = true;
 
         public Text activeState;
         public Text statusMessage;
+        public Button callButton;
+        public Button hangUpButton;
+        public Button answerCallButton;
         public AudioSource ringer;
+        public AudioSource voice;
+        public float delayBetweenRings = 1f;
+        public Animator imageAnimator;
+        public int numHapticPulses = 2;
+        public Image onHoldBackground;
+        public Toggle onHoldToggle;
+        public float startVolume = 0.6f;
 
         private void Awake()
         {
             fsm = new TelephoneFSM();
             context = TelephoneFSM.NewDefaultContext(this, this, this);
             fsm.Bind(context);
+
+            volume = startVolume;
+            ringer.volume = startVolume;
+            voice.volume = startVolume;
+
+            imageAnimator.enabled = false;
+
+            statusMessage.text = "";
         }
 
         private void Update()
         {
+            // These should be event driven instead of polling, but for simplicity sake
+            // it's implemented this way for the example.
             activeState.text = context.State.ToString();
+
+            callButton.interactable = context.State == TelephoneFSM.State.OffHook;
+
+            hangUpButton.interactable = 
+                context.State == TelephoneFSM.State.Ringing ||
+                context.State == TelephoneFSM.State.Connected ||
+                context.State == TelephoneFSM.State.OnHold;
+
+            answerCallButton.interactable = context.State == TelephoneFSM.State.Ringing;
+
+            switch (context.State) {
+            case TelephoneFSM.State.Connected:
+            case TelephoneFSM.State.OnHold:
+                onHoldBackground.color = Color.white;
+                onHoldToggle.interactable = true;
+                break;
+            default:
+                onHoldBackground.color = callButton.colors.disabledColor; // just steal this from button
+                onHoldToggle.interactable = false;
+
+                // Just reseting the visual of the toggle since we aren't in a valid state, squelch 
+                // responding to change in isOn since this will send spurious events.
+                listenToggleChange = false;
+                onHoldToggle.isOn = false;
+                listenToggleChange = true;
+                break;
+            }
         }
 
-        void ITelephoneConnected.OnEnter()
+        public void OnCallPhoneClicked()
+        {
+            fsm.SendEvent(TelephoneFSM.Event.CallDialed);
+        }
+
+        public void OnHangUpClicked()
+        {
+            fsm.SendEvent(TelephoneFSM.Event.HungUp);
+        }
+
+        public void OnAnswerCallClicked()
+        {
+            fsm.SendEvent(TelephoneFSM.Event.CallConnected);
+        }
+
+        public void OnHoldChanged()
+        {
+            if (!listenToggleChange) {
+                return;
+            }
+
+            if (onHoldToggle.isOn) {
+                fsm.SendEvent(TelephoneFSM.Event.OnHold);
+            }
+            else {
+                fsm.SendEvent(TelephoneFSM.Event.OffHold);
+            }
+        }
+
+        #region ITelephone
+
+        void ITelephone.ConnectedToCall()
+        {
+            if (voice.isPlaying) {
+                voice.UnPause();
+            }
+            else {
+                voice.Play();
+            }
+        }
+
+        void ITelephone.SuspendCall()
+        {
+            voice.Pause();
+        }
+
+        void ITelephone.DisconnectCall()
+        {
+            voice.Stop();
+
+            // Even though we are mid-dispatch of an event it is ok to call this as the
+            // event will be queued up and sent after the current event finalizes.
+            // See UML 'run to completion'
+            fsm.SendEvent(TelephoneFSM.Event.HungUp);
+        }
+
+        #endregion
+
+        #region IAudioControl
+        
+        void IAudioControl.StartRinging()
+        {
+            if (ringing == null) {
+                ringing = StartCoroutine(Ring());
+            }
+        }
+        
+        void IAudioControl.StopRinging()
+        {
+            if (ringing != null) {
+                StopCoroutine(ringing);
+                ringing = null;
+            }
+            ringer.Stop();
+        }
+
+        private IEnumerator Ring()
+        {
+            var wait = new WaitForSeconds(delayBetweenRings);
+
+            ringer.Play();
+            while (true) {
+                yield return new WaitUntil(() => !ringer.isPlaying);
+                yield return wait;
+
+                ringer.Play();
+            }
+        }
+
+        void IAudioControl.Mute()
+        {
+            ringer.volume = 0f;
+            voice.volume = 0f;
+        }
+
+        void IAudioControl.Unmute()
+        {
+            ringer.volume = volume;
+            voice.volume = volume;
+        }
+
+        void IAudioControl.VolumeUp()
+        {
+            volume = Mathf.Min(1f, volume + 0.2f);
+            ringer.volume = volume;
+            voice.volume = volume;
+        }
+
+        void IAudioControl.VolumeDown()
+        {
+            volume = Mathf.Max(0f, volume - 0.2f);
+            ringer.volume = volume;
+            voice.volume = volume;
+        }
+
+        void IAudioControl.ChangeVolume()
         {
         }
 
-        void ITelephoneConnected.OnExit()
+        #endregion
+
+        #region IHaptics
+
+        void IHaptics.Pulse()
         {
+            if (pulsing != null) {
+                StopCoroutine(pulsing);
+            }
+
+            pulsing = StartCoroutine(DoHapticPulse(numHapticPulses));
         }
 
-        void ITelephoneOffHook.OnExit()
+        private IEnumerator DoHapticPulse(int num)
         {
+            imageAnimator.enabled = true;
+            imageAnimator.Play("TelephoneBuzz");
+
+            // Yea this is gross
+            while (true) {
+                var info = imageAnimator.GetCurrentAnimatorStateInfo(0);
+                var numLoopsSoFar = (int)Mathf.Floor(info.normalizedTime);
+                if (numLoopsSoFar == num) {
+                    break;
+                }
+
+                yield return null;
+            }
+            
+            imageAnimator.enabled = false;
+            pulsing = null;
         }
 
-        void ITelephoneHaptics.Pulse()
-        {
-        }
-
-        void IVolumeControl.Mute()
-        {
-        }
-
-        void IVolumeControl.Unmute()
-        {
-        }
-
-        void IVolumeControl.ChangeVolume()
-        {
-        }
+        #endregion
     }
 }
