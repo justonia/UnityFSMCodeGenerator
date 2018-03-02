@@ -19,12 +19,15 @@ namespace UnityFSMCodeGenerator.Examples
         public enum State
         {
             WaitForEvent,
+            VolumeUp,
+            VolumeDown,
         }
     
         public const State START_STATE = State.WaitForEvent;
     
         public enum Event
         {
+            VolumeChanged,
             VolumeDown,
             VolumeUp,
         }
@@ -135,6 +138,46 @@ namespace UnityFSMCodeGenerator.Examples
             switch (context.State) {
             case State.WaitForEvent:
                 switch (_event) {        
+                case Event.VolumeUp:
+                    if (TransitionTo(State.VolumeUp, from)) {
+                        SwitchState(from, State.VolumeUp);
+                    }
+                    break;        
+                case Event.VolumeDown:
+                    if (TransitionTo(State.VolumeDown, from)) {
+                        SwitchState(from, State.VolumeDown);
+                    }
+                    break;        
+                default:
+                    if (!HandleInternalActions(from, _event)) {
+                        throw new System.Exception(string.Format("Unhandled event '{0}' in state '{1}'", _event.ToString(), context.State.ToString()));
+                    }
+                    break;
+                }
+                break;
+        
+            case State.VolumeUp:
+                switch (_event) {        
+                case Event.VolumeChanged:
+                    if (TransitionTo(State.WaitForEvent, from)) {
+                        SwitchState(from, State.WaitForEvent);
+                    }
+                    break;        
+                default:
+                    if (!HandleInternalActions(from, _event)) {
+                        throw new System.Exception(string.Format("Unhandled event '{0}' in state '{1}'", _event.ToString(), context.State.ToString()));
+                    }
+                    break;
+                }
+                break;
+        
+            case State.VolumeDown:
+                switch (_event) {        
+                case Event.VolumeChanged:
+                    if (TransitionTo(State.WaitForEvent, from)) {
+                        SwitchState(from, State.WaitForEvent);
+                    }
+                    break;        
                 default:
                     if (!HandleInternalActions(from, _event)) {
                         throw new System.Exception(string.Format("Unhandled event '{0}' in state '{1}'", _event.ToString(), context.State.ToString()));
@@ -150,25 +193,8 @@ namespace UnityFSMCodeGenerator.Examples
         
         private bool HandleInternalActions(State state, Event _event)
         {
-            var handled = false;
-        
-            switch (state) {
-            case State.WaitForEvent:
-                switch (_event) {        
-                case Event.VolumeUp:
-                    context.AudioControl.VolumeUp();
-                    handled = true;
-                    break;        
-                case Event.VolumeDown:
-                    context.AudioControl.VolumeDown();
-                    handled = true;
-                    break;
-                }
-                break;
-        
-            }
-        
-            return handled;
+            // no states have internal actions, intentionally empty
+            return false;
         }
     
     
@@ -191,6 +217,12 @@ namespace UnityFSMCodeGenerator.Examples
             switch (state) {
             case State.WaitForEvent:
                 break;
+            case State.VolumeUp:
+                context.AudioControl.VolumeUp();
+                break;
+            case State.VolumeDown:
+                context.AudioControl.VolumeDown();
+                break;
             }
         }
     
@@ -199,6 +231,10 @@ namespace UnityFSMCodeGenerator.Examples
         {
             switch (state) {
             case State.WaitForEvent:
+                break;
+            case State.VolumeUp:
+                break;
+            case State.VolumeDown:
                 break;
             }
         }
@@ -215,9 +251,13 @@ namespace UnityFSMCodeGenerator.Examples
         
         private Dictionary<State, string> debugStateLookup = new Dictionary<State, string>(new StateComparer()){
             { State.WaitForEvent, "Wait For Event" },
+            { State.VolumeUp, "Volume Up" },
+            { State.VolumeDown, "Volume Down" },
         };
         private List<string> debugStringStates = new List<string>(){
             "Wait For Event",
+            "Volume Up",
+            "Volume Down",
         };
         
         string UnityFSMCodeGenerator.IFsmDebugSupport.State { get { return context != null ? debugStateLookup[context.State] : null; }}

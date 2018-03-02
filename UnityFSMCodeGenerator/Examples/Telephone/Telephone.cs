@@ -176,13 +176,11 @@ namespace UnityFSMCodeGenerator.Examples
         public void OnVolumeUpClicked()
         {
             volumeFsm.SendEvent(TelephoneVolumeFSM.Event.VolumeUp);
-            volumePercent.text = ((int)(volume * 100f)).ToString() + "%";
         }
 
         public void OnVolumeDownClicked()
         {
             volumeFsm.SendEvent(TelephoneVolumeFSM.Event.VolumeDown);
-            volumePercent.text = ((int)(volume * 100f)).ToString() + "%";
         }
 
         #region ITelephone
@@ -251,6 +249,9 @@ namespace UnityFSMCodeGenerator.Examples
             volume = Mathf.Min(1f, volume + 0.25f);
             ringer.volume = volume;
             voice.volume = volume;
+            volumePercent.text = ((int)(volume * 100f)).ToString() + "%";
+            
+            volumeFsm.SendEvent(TelephoneVolumeFSM.Event.VolumeChanged);
         }
 
         void IAudioControl.VolumeDown()
@@ -258,6 +259,9 @@ namespace UnityFSMCodeGenerator.Examples
             volume = Mathf.Max(0f, volume - 0.25f);
             ringer.volume = volume;
             voice.volume = volume;
+            volumePercent.text = ((int)(volume * 100f)).ToString() + "%";
+            
+            volumeFsm.SendEvent(TelephoneVolumeFSM.Event.VolumeChanged);
         }
 
         #endregion

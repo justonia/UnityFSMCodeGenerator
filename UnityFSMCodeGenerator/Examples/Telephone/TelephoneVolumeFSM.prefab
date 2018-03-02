@@ -88,25 +88,99 @@ MonoBehaviour:
       colorIndex: 0
       position:
         serializedVersion: 2
-        x: 130
+        x: 274
         y: 100
         width: 128
-        height: 16
+        height: 48
       isBreakpoint: 0
       isSequence: 0
       hideUnused: 0
-      transitions: []
+      transitions:
+      - fsmEvent:
+          name: Volume Up
+          isSystemEvent: 0
+          isGlobal: 0
+        toState: Volume Up
+        linkStyle: 0
+        linkConstraint: 0
+        colorIndex: 0
+      - fsmEvent:
+          name: Volume Down
+          isSystemEvent: 0
+          isGlobal: 0
+        toState: Volume Down
+        linkStyle: 0
+        linkConstraint: 0
+        colorIndex: 0
+      actionData:
+        actionNames: []
+        customNames: []
+        actionEnabled: 
+        actionIsOpen: 
+        actionStartIndex: 
+        actionHashCodes: 
+        unityObjectParams: []
+        fsmGameObjectParams: []
+        fsmOwnerDefaultParams: []
+        animationCurveParams: []
+        functionCallParams: []
+        fsmTemplateControlParams: []
+        fsmEventTargetParams: []
+        fsmPropertyParams: []
+        layoutOptionParams: []
+        fsmStringParams: []
+        fsmObjectParams: []
+        fsmVarParams: []
+        fsmArrayParams: []
+        fsmEnumParams: []
+        fsmFloatParams: []
+        fsmIntParams: []
+        fsmBoolParams: []
+        fsmVector2Params: []
+        fsmVector3Params: []
+        fsmColorParams: []
+        fsmRectParams: []
+        fsmQuaternionParams: []
+        stringParams: []
+        byteData: 
+        arrayParamSizes: 
+        arrayParamTypes: []
+        customTypeSizes: 
+        customTypeNames: []
+        paramDataType: 
+        paramName: []
+        paramDataPos: 
+        paramByteDataSize: 
+    - name: Volume Up
+      description: 
+      colorIndex: 0
+      position:
+        serializedVersion: 2
+        x: 54
+        y: 185
+        width: 140
+        height: 32
+      isBreakpoint: 0
+      isSequence: 0
+      hideUnused: 0
+      transitions:
+      - fsmEvent:
+          name: Volume Changed
+          isSystemEvent: 0
+          isGlobal: 0
+        toState: Wait For Event
+        linkStyle: 0
+        linkConstraint: 0
+        colorIndex: 0
       actionData:
         actionNames:
-        - UnityFSMCodeGenerator.Actions.InternalAction
-        - UnityFSMCodeGenerator.Actions.InternalAction
+        - UnityFSMCodeGenerator.Actions.OnEntryAction
         customNames:
         - 
-        - 
-        actionEnabled: 0101
-        actionIsOpen: 0101
-        actionStartIndex: 0000000003000000
-        actionHashCodes: c8ed5705c8ed5705
+        actionEnabled: 01
+        actionIsOpen: 01
+        actionStartIndex: 00000000
+        actionHashCodes: a4b08a01
         unityObjectParams: []
         fsmGameObjectParams: []
         fsmOwnerDefaultParams: []
@@ -122,12 +196,6 @@ MonoBehaviour:
           tooltip: 
           showInInspector: 0
           networkSync: 0
-          value: Volume Up
-        - useVariable: 0
-          name: 
-          tooltip: 
-          showInInspector: 0
-          networkSync: 0
           value: UnityFSMCodeGenerator.Examples.IAudioControl
         - useVariable: 0
           name: 
@@ -135,12 +203,70 @@ MonoBehaviour:
           showInInspector: 0
           networkSync: 0
           value: void VolumeUp ()
-        - useVariable: 0
-          name: 
-          tooltip: 
-          showInInspector: 0
-          networkSync: 0
-          value: Volume Down
+        fsmObjectParams: []
+        fsmVarParams: []
+        fsmArrayParams: []
+        fsmEnumParams: []
+        fsmFloatParams: []
+        fsmIntParams: []
+        fsmBoolParams: []
+        fsmVector2Params: []
+        fsmVector3Params: []
+        fsmColorParams: []
+        fsmRectParams: []
+        fsmQuaternionParams: []
+        stringParams: []
+        byteData: 
+        arrayParamSizes: 
+        arrayParamTypes: []
+        customTypeSizes: 
+        customTypeNames: []
+        paramDataType: 1200000012000000
+        paramName:
+        - delegateInterface
+        - methodSignature
+        paramDataPos: 0000000001000000
+        paramByteDataSize: 0000000000000000
+    - name: Volume Down
+      description: 
+      colorIndex: 0
+      position:
+        serializedVersion: 2
+        x: 488
+        y: 182
+        width: 140
+        height: 32
+      isBreakpoint: 0
+      isSequence: 0
+      hideUnused: 0
+      transitions:
+      - fsmEvent:
+          name: Volume Changed
+          isSystemEvent: 0
+          isGlobal: 0
+        toState: Wait For Event
+        linkStyle: 0
+        linkConstraint: 0
+        colorIndex: 0
+      actionData:
+        actionNames:
+        - UnityFSMCodeGenerator.Actions.OnEntryAction
+        customNames:
+        - 
+        actionEnabled: 01
+        actionIsOpen: 01
+        actionStartIndex: 00000000
+        actionHashCodes: a4b08a01
+        unityObjectParams: []
+        fsmGameObjectParams: []
+        fsmOwnerDefaultParams: []
+        animationCurveParams: []
+        functionCallParams: []
+        fsmTemplateControlParams: []
+        fsmEventTargetParams: []
+        fsmPropertyParams: []
+        layoutOptionParams: []
+        fsmStringParams:
         - useVariable: 0
           name: 
           tooltip: 
@@ -171,17 +297,16 @@ MonoBehaviour:
         arrayParamTypes: []
         customTypeSizes: 
         customTypeNames: []
-        paramDataType: 120000001200000012000000120000001200000012000000
+        paramDataType: 1200000012000000
         paramName:
-        - _event
         - delegateInterface
         - methodSignature
-        - _event
-        - delegateInterface
-        - methodSignature
-        paramDataPos: 000000000100000002000000030000000400000005000000
-        paramByteDataSize: 000000000000000000000000000000000000000000000000
+        paramDataPos: 0000000001000000
+        paramByteDataSize: 0000000000000000
     events:
+    - name: Volume Changed
+      isSystemEvent: 0
+      isGlobal: 0
     - name: Volume Down
       isSystemEvent: 0
       isGlobal: 0
