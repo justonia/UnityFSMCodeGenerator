@@ -78,7 +78,7 @@ If you are a hands on learner, see the [telephone example](#telephone) that come
 - Cool name.
 
 **UnityFSMCodeGenerator**
-- Nothing happens without C# code sending events to the FSM and implementing behavior.
+- Nothing happens without C# code implementing behavior and sending events to the FSM.
 - Requires coding.
 - Requires interface-based design and dependency injection.
 - Can hook into the PlayMaker GUI to visually debug your generated C# FSM. (see [Extras](#extras) below).
