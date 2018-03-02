@@ -17,7 +17,7 @@ Wouldn't it be great if you could visually design this:
 
 And through some hand-wavy magic end up with this:
 
-![C# code](https://github.com/justonia/UnityFSMCodeGenerator/raw/master/Docs/telephone_code_1_v02.png)
+![C# code](https://github.com/justonia/UnityFSMCodeGenerator/raw/master/Docs/telephone_code_1_v03.png)
 
 And not be forced by hand to write this:
 
