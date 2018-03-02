@@ -42,12 +42,16 @@ namespace UnityFSMCodeGenerator.Editor
 
         private void OnEnable()
         {
-            (target as FsmViewer).WantRepaint += this.Repaint;
+            if (Application.isPlaying) {
+                (target as FsmViewer).WantRepaint += this.Repaint;
+            }
         }
 
         private void OnDisable()
         {
-            (target as FsmViewer).WantRepaint -= this.Repaint;
+            if (Application.isPlaying) {
+                (target as FsmViewer).WantRepaint -= this.Repaint;
+            }
         }
 
         public override void OnInspectorGUI()
