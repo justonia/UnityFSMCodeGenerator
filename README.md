@@ -82,7 +82,7 @@ If you are a hands on learner, see the [telephone example](#telephone) that come
 - Requires coding.
 - Requires interface-based design and dependency injection.
 - Can hook into the PlayMaker GUI to visually debug your generated C# FSM. (see [Extras](#extras) below).
-- Intended to assist programmers, but can still be used by non-programmers to iterate and prototype behavior.
+- Intended to assist programmers, but can still be used by non-programmers to change behavior.
 - Horrible name.
 
 ## Examples
