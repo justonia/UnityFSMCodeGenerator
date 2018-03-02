@@ -72,6 +72,7 @@ namespace UnityFSMCodeGenerator
                 clsStartTemplate
                     .Replace("{{description}}", model.description != null ? "// " + model.description.Replace("\n", "") : "")
                     .Replace("{{cls}}", className)
+                    .Replace("{{implementinterfaces}}", GetImplementInterfaces(model, varNames))
                     .Replace("{{genprefab}}", model.fromPrefab != null ? model.fromPrefab.Replace("\"", "") : "")
                     .Replace("{{genguid}}", model.prefabGuid != null ? model.prefabGuid.Replace("\"", "") : "")
                     .Replace("{{startstate}}", GetStartState(model, varNames))
@@ -83,7 +84,8 @@ namespace UnityFSMCodeGenerator
                     .Replace("{{singleInternalSendEvent}}", GetSingleInternalSendEvent(model, varNames))
                     .Replace("{{handleinternalactions}}", GetHandleInternalActions(model, varNames))
                     .Replace("{{dispatchonenter}}", GetDispatchOnEnter(model, varNames))
-                    .Replace("{{dispatchonexit}}", GetDispatchOnExit(model, varNames)),
+                    .Replace("{{dispatchonexit}}", GetDispatchOnExit(model, varNames))
+                    .Replace("{{debugsupport}}", GetDebugSupport(model, varNames)),
                 indentLevel));
             
             // Close namespace
@@ -107,6 +109,50 @@ namespace UnityFSMCodeGenerator
             public Dictionary<string, string> stateNameToEnum;
             public Dictionary<string, string> eventNameToEnum;
             public Dictionary<MethodInfo, string> methodInvoke;
+        }
+
+        private string GetDebugSupport(FsmModel model, VarNames varNames)
+        {
+            if (!options.enableDebugSupport) {
+                return "";
+            }
+
+            var sb = new System.Text.StringBuilder();
+            // Make dictionary initializer entries, e.g.: { "Hung Up", "HungUp" },
+            for (int i = 0; i < model.states.Count; i++) {
+                var state = model.states[i];
+                PreIndent(sb, options.padding);
+                sb.Append("{ State.");
+                sb.Append(varNames.stateNameToEnum[state.name]);
+                sb.Append(", \"");
+                sb.Append(state.name);
+                sb.Append("\" },\n");
+            }
+            var stateLookups = sb.ToString();
+
+            // Make list initializer of state names
+            sb = new System.Text.StringBuilder();
+            for (int i = 0; i < model.states.Count; i++) {
+                var state = model.states[i];
+                PreIndent(sb, options.padding);
+                sb.Append("\"");
+                sb.Append(state.name);
+                sb.Append("\",\n");
+            }
+
+            return PostIndent(debugSupportTemplate
+                .Replace("{{statelookups}}", stateLookups)
+                .Replace("{{statelist}}", sb.ToString()),
+                options.padding);
+        }
+
+        private string GetImplementInterfaces(FsmModel model, VarNames varNames)
+        {
+            if (!options.enableDebugSupport) {
+                return "";
+            }
+
+            return ", UnityFSMCodeGenerator.IFsmDebugSupport";
         }
 
         private string GetStartState(FsmModel model, VarNames varNames)
@@ -462,7 +508,7 @@ namespace {{ns}}
 ";
 
         private readonly string clsStartTemplate = @"{{description}}
-public class {{cls}} :  UnityFSMCodeGenerator.BaseFsm 
+public class {{cls}} :  UnityFSMCodeGenerator.BaseFsm{{implementinterfaces}}
 {
     public readonly static string GeneratedFromPrefab = ""{{genprefab}}"";
     public readonly static string GeneratedFromGUID = ""{{genguid}}"";
@@ -585,8 +631,29 @@ public class {{cls}} :  UnityFSMCodeGenerator.BaseFsm
 {{dispatchonenter}}
 {{dispatchonexit}}
     #endregion
+{{debugsupport}}
 }
 ";
+
+    private readonly string debugSupportTemplate = @"
+#region IFsmDebugSupport
+
+public struct StateComparer : IEqualityComparer<State>
+{
+    public bool Equals(State x, State y) { return x == y; }
+    public int GetHashCode(State obj) { return obj.GetHashCode(); }
+}
+
+private Dictionary<State, string> debugStateLookup = new Dictionary<State, string>(new StateComparer()){
+{{statelookups}}};
+private List<string> debugStringStates = new List<string>(){
+{{statelist}}};
+
+string UnityFSMCodeGenerator.IFsmDebugSupport.State { get { return context != null ? debugStateLookup[context.State] : null; }}
+
+List<string> UnityFSMCodeGenerator.IFsmDebugSupport.AllStates { get { return debugStringStates; }}
+
+#endregion";
 
     private readonly string sendInternalEventBaseTemplate = @"
 private void SingleInternalSendEvent(QueuedEvent _eventData)

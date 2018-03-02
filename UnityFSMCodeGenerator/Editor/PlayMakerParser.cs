@@ -64,6 +64,10 @@ namespace UnityFSMCodeGenerator.Editor
                     throw new System.Exception("Duplicate state name: " + state.Name);
                 }
 
+                if (state.Name.Contains("\"")) {
+                    throw new System.Exception("Illegal characters in state name '" + state.Name + "'");
+                }
+
                 var stateModel = new FsmStateModel{
                     name = state.Name,
                     transitions = new List<FsmTransitionModel>(),

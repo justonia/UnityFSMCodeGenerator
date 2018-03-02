@@ -22,10 +22,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Collections.Generic;
+
 namespace UnityFSMCodeGenerator
 {
     public interface IFsmContext
     {
+    }
+
+    // If enabled, the compilation process will output debug information and
+    // have the generated FSM implement this interface.
+    public interface IFsmDebugSupport
+    {
+        // These string names will be whatever the name of the states were before
+        // the generator trimmed and turned them into enum values.
+        string State { get; }
+        List<string> AllStates { get; }
+    }
+
+    public interface IHaveBaseFsm
+    {
+        BaseFsm BaseFsm { get; }
     }
 
     // Currently exists as a marker class to be able to find all implementations

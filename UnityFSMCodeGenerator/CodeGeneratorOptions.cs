@@ -27,8 +27,9 @@ namespace UnityFSMCodeGenerator
     [System.Serializable]
     public class CodeGeneratorOptions
     {
-        public bool commentedOut = false;
         public string _namespace;
+        public bool enableDebugSupport;
+        public bool commentedOut = false;
         public int padding = 4;
         public bool verbose = false;
     }

@@ -11,7 +11,7 @@ using System.Collections.Generic;
 namespace UnityFSMCodeGenerator.Examples
 {
     // This FSM models a simple telephone that is capable of receiving calls, putting them on hold, or leaving a message.
-    public class TelephoneFSM :  UnityFSMCodeGenerator.BaseFsm 
+    public class TelephoneFSM :  UnityFSMCodeGenerator.BaseFsm, UnityFSMCodeGenerator.IFsmDebugSupport
     {
         public readonly static string GeneratedFromPrefab = "Assets/UnityFSMCodeGenerator/UnityFSMCodeGenerator/Examples/Telephone/TelephoneFSM.prefab";
         public readonly static string GeneratedFromGUID = "3045bb4d728b8b5478f1e8a3ed6bab84";
@@ -334,6 +334,36 @@ namespace UnityFSMCodeGenerator.Examples
         }
     
         #endregion
+        
+        #region IFsmDebugSupport
+        
+        public struct StateComparer : IEqualityComparer<State>
+        {
+            public bool Equals(State x, State y) { return x == y; }
+            public int GetHashCode(State obj) { return obj.GetHashCode(); }
+        }
+        
+        private Dictionary<State, string> debugStateLookup = new Dictionary<State, string>(new StateComparer()){
+            { State.OffHook, "Off Hook" },
+            { State.Ringing, "Ringing" },
+            { State.Connected, "Connected" },
+            { State.OnHold, "On Hold" },
+            { State.DisconnectCall, "Disconnect Call" },
+        };
+        private List<string> debugStringStates = new List<string>(){
+            "Off Hook",
+            "Ringing",
+            "Connected",
+            "On Hold",
+            "Disconnect Call",
+        };
+        
+        string UnityFSMCodeGenerator.IFsmDebugSupport.State { get { return context != null ? debugStateLookup[context.State] : null; }}
+        
+        List<string> UnityFSMCodeGenerator.IFsmDebugSupport.AllStates { get { return debugStringStates; }}
+        
+        #endregion
+    
     }
     
 }

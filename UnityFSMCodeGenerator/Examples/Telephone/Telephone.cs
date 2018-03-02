@@ -55,7 +55,8 @@ namespace UnityFSMCodeGenerator.Examples
     public class Telephone : MonoBehaviour, 
         ITelephone,
         IAudioControl,
-        IHaptics
+        IHaptics,
+        UnityFSMCodeGenerator.IHaveBaseFsm
     {
         private TelephoneFSM fsm;
         private TelephoneFSM.IContext context;
@@ -77,6 +78,8 @@ namespace UnityFSMCodeGenerator.Examples
         public Image onHoldBackground;
         public Toggle onHoldToggle;
         public float startVolume = 0.6f;
+
+        UnityFSMCodeGenerator.BaseFsm UnityFSMCodeGenerator.IHaveBaseFsm.BaseFsm { get { return fsm; }}
 
         private void Awake()
         {
