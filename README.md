@@ -60,3 +60,11 @@ Transitions, enter/exit callbacks, internal action callbacks, and code generatio
 Still needs much more documentation, unit tests, support for IgnoreEventAction, better error handling in the UI, potentially support for delegate arguments (maybe), and a bunch of other stuff.
 
 **Note:** Right now the editor side of things is using the `CompilationPipeline` class added in Unity 2017.3. I will try and kludge together a fallback option for older versions of Unity.
+
+## Extras
+
+There is a `FsmViewer` component you can stick on a GameObject and link up to MonoBehaviours containing the generated FSMs (which are pure classes, not MonoBehaviours). When linked, you get a debug information on what is going on within each linked state machine.
+
+Even better, if you have PlayMaker installed a "Graph View" option shows up. When pressed, an instance of the `PlayMakerFSM` used to generate the code FSM is viewable within the PlayMaker UI and will update to show the state the code FSM is in.
+
+![PlayMaker graph view](https://github.com/justonia/UnityFSMCodeGenerator/raw/master/Docs/fsmviewer_1_v01.PNG)
