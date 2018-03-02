@@ -40,6 +40,23 @@ namespace UnityFSMCodeGenerator.Editor
         private static GUILayoutOption objectMaxWidth = GUILayout.MaxWidth(250);
         private static GUILayoutOption typeMinWidth = GUILayout.MinWidth(150);
 
+        static FsmViewerEditor()
+        {
+            // TODO: This only works in 2017.2 or later... need fallback
+            EditorApplication.playModeStateChanged += (PlayModeStateChange state) => {
+                if (state != PlayModeStateChange.ExitingPlayMode) {
+                    return;
+                }
+
+                // Prevent being stuck in lock mode on a runtime FSM exiting play mode
+                var activeFsm =  HutongGames.PlayMakerEditor.FsmEditor.SelectedFsmComponent;
+                if (activeFsm != null && activeFsm.GetComponent<FsmViewerPrefabInstance>() != null) {
+                    HutongGames.PlayMakerEditor.FsmEditorSettings.LockGraphView = false;
+                    HutongGames.PlayMakerEditor.FsmEditor.SelectNone();
+                }
+            };
+        }
+
         private void OnEnable()
         {
             if (Application.isPlaying) {
