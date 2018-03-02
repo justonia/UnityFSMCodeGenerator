@@ -46,57 +46,18 @@ namespace UnityFSMCodeGenerator.Editor
     [CustomActionEditor(typeof(InternalAction))]
     public class InternalActionEditor : BaseDelegateActionEditor
     {
-        private bool isDirty;
-
         public override bool OnGUI()
         {
-            var action = target as InternalAction;
-            isDirty = false;
-
-            //EditField("_event");
-            EditorGUILayout.BeginHorizontal();
-            {
-                FsmEditorGUILayout.PrefixLabel("Event");
-
-                var buttonRect = GUILayoutUtility.GetRect(GUIContent.none, EditorStyles.popup);
-                var currentEventName =  action._event != null ? action._event.Value : "";
-
-                if (GUI.Button(buttonRect, currentEventName, EditorStyles.popup))
-                {
-                    FsmEditorGUILayout.GenerateEventSelectionMenu(action.Fsm, FindEvent(currentEventName), OnSelect, OnNew).DropDown(buttonRect);
-                    //action._event.Value = FsmEditorGUILayout.FsmEventListPopup();
-                    //action._event.Value = FsmEditorGUILayout.FsmEventPopup(action.Owner, action.
-                }
+            var action = (target as InternalAction);
+            if (action._event == null) {
+                action._event = new FsmString();
             }
-            EditorGUILayout.EndHorizontal();
+
+            var eventChanged = EditEventField("Event", action.Fsm, action._event);
 
             FsmEditorGUILayout.LightDivider();
 
-            return base.OnGUI() || isDirty;
-        }
-
-        private FsmEvent FindEvent(string name)
-        {
-            foreach (var evt in FsmEvent.EventList) {
-                if (evt.Name == name) {
-                    return evt;
-                }
-            }
-            return null;
-        }
-
-        private void OnSelect(object _event)
-        {
-            var chosenEvent = _event as FsmEvent;
-
-            if (chosenEvent == null || chosenEvent.Name != (target as InternalAction)._event.Value) {
-                (target as InternalAction)._event.Value = chosenEvent.Name;
-                isDirty = true;
-            }
-        }
-
-        private void OnNew()
-        {
+            return base.OnGUI() || eventChanged;
         }
     }
 }

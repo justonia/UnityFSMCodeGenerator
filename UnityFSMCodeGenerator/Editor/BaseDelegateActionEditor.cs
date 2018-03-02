@@ -33,7 +33,65 @@ using UnityFSMCodeGenerator.Actions;
 
 namespace UnityFSMCodeGenerator.Editor
 {
-    public class BaseDelegateActionEditor : CustomActionEditor
+    public abstract class BaseFsmActionEditor : CustomActionEditor
+    {
+        private bool editFieldChanged = false;
+        private FsmString currentEditField;
+
+        public bool EditEventField(string label, Fsm fsm, FsmString _event)
+        {
+            editFieldChanged = false;
+            currentEditField = _event;
+
+            EditorGUILayout.BeginHorizontal();
+            {
+                FsmEditorGUILayout.PrefixLabel(label);
+
+                var buttonRect = GUILayoutUtility.GetRect(GUIContent.none, EditorStyles.popup);
+                var currentEventName =  _event != null ? _event.Value : "";
+
+                if (GUI.Button(buttonRect, currentEventName, EditorStyles.popup))
+                {
+                    FsmEditorGUILayout.GenerateEventSelectionMenu(
+                        fsm, FindEvent(currentEventName), OnSelect, OnNew).DropDown(buttonRect);
+                }
+            }
+
+            EditorGUILayout.EndHorizontal();
+
+            return editFieldChanged;
+        }
+
+        private FsmEvent FindEvent(string name)
+        {
+            foreach (var evt in FsmEvent.EventList) {
+                if (evt.Name == name) {
+                    return evt;
+                }
+            }
+            return null;
+        }
+
+        private void OnSelect(object _event)
+        {
+            editFieldChanged = true;
+
+            var chosenEvent = _event as FsmEvent;
+            if (chosenEvent == null) {
+                currentEditField.Value = "";
+                return;
+            }
+
+            currentEditField.Value = chosenEvent.Name;
+        }
+
+        private void OnNew()
+        {
+            // TODO: ?
+        }
+    }
+
+    public class BaseDelegateActionEditor : BaseFsmActionEditor
     {
         private bool isDirty = false;
 

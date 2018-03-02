@@ -31,10 +31,8 @@ using TooltipAttribute = HutongGames.PlayMaker.TooltipAttribute;
 
 namespace UnityFSMCodeGenerator.Actions
 {
-    public abstract class BaseDelegateAction : BaseFsmAction
+    public abstract class BaseFsmAction : FsmStateAction
     {
-        public FsmString delegateInterface;
-        public FsmString methodSignature;
     }
 }
 #endif
