@@ -31,13 +31,10 @@ namespace UnityFSMCodeGenerator.Examples
         {
             CallConnected,
             CallDialed,
-            ChangeVolume,
             HungUp,
             LeftMessage,
-            MuteMicrophone,
             OffHold,
             OnHold,
-            UnmuteMicrophone,
         }
     
         public interface IContext : UnityFSMCodeGenerator.IFsmContext
@@ -252,31 +249,8 @@ namespace UnityFSMCodeGenerator.Examples
         
         private bool HandleInternalActions(State state, Event _event)
         {
-            var handled = false;
-        
-            switch (state) {
-            case State.Connected:
-                switch (_event) {        
-                case Event.MuteMicrophone:
-                    context.AudioControl.Mute();
-                    handled = true;
-                    break;        
-                case Event.UnmuteMicrophone:
-                    context.AudioControl.Unmute();
-                    handled = true;
-                    break;        
-                case Event.ChangeVolume:
-                    context.AudioControl.ChangeVolume();
-                    handled = true;
-                    break;        
-                default:
-                    break;
-                }
-                break;
-        
-            }
-        
-            return handled;
+            // no states have internal actions, intentionally empty
+            return false;
         }
     
     

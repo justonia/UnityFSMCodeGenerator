@@ -299,18 +299,12 @@ MonoBehaviour:
       actionData:
         actionNames:
         - UnityFSMCodeGenerator.Actions.OnEntryAction
-        - UnityFSMCodeGenerator.Actions.InternalAction
-        - UnityFSMCodeGenerator.Actions.InternalAction
-        - UnityFSMCodeGenerator.Actions.InternalAction
         customNames:
         - 
-        - 
-        - 
-        - 
-        actionEnabled: 01010101
-        actionIsOpen: 01010101
-        actionStartIndex: 00000000020000000500000008000000
-        actionHashCodes: a4b08a01c8ed5705c8ed5705c8ed5705
+        actionEnabled: 01
+        actionIsOpen: 01
+        actionStartIndex: 00000000
+        actionHashCodes: a4b08a01
         unityObjectParams: []
         fsmGameObjectParams: []
         fsmOwnerDefaultParams: []
@@ -333,60 +327,6 @@ MonoBehaviour:
           showInInspector: 0
           networkSync: 0
           value: void ConnectedToCall ()
-        - useVariable: 0
-          name: 
-          tooltip: 
-          showInInspector: 0
-          networkSync: 0
-          value: Mute Microphone
-        - useVariable: 0
-          name: 
-          tooltip: 
-          showInInspector: 0
-          networkSync: 0
-          value: UnityFSMCodeGenerator.Examples.IAudioControl
-        - useVariable: 0
-          name: 
-          tooltip: 
-          showInInspector: 0
-          networkSync: 0
-          value: void Mute ()
-        - useVariable: 0
-          name: 
-          tooltip: 
-          showInInspector: 0
-          networkSync: 0
-          value: Unmute Microphone
-        - useVariable: 0
-          name: 
-          tooltip: 
-          showInInspector: 0
-          networkSync: 0
-          value: UnityFSMCodeGenerator.Examples.IAudioControl
-        - useVariable: 0
-          name: 
-          tooltip: 
-          showInInspector: 0
-          networkSync: 0
-          value: void Unmute ()
-        - useVariable: 0
-          name: 
-          tooltip: 
-          showInInspector: 0
-          networkSync: 0
-          value: Change Volume
-        - useVariable: 0
-          name: 
-          tooltip: 
-          showInInspector: 0
-          networkSync: 0
-          value: UnityFSMCodeGenerator.Examples.IAudioControl
-        - useVariable: 0
-          name: 
-          tooltip: 
-          showInInspector: 0
-          networkSync: 0
-          value: void ChangeVolume ()
         fsmObjectParams: []
         fsmVarParams: []
         fsmArrayParams: []
@@ -405,21 +345,12 @@ MonoBehaviour:
         arrayParamTypes: []
         customTypeSizes: 
         customTypeNames: []
-        paramDataType: 1200000012000000120000001200000012000000120000001200000012000000120000001200000012000000
+        paramDataType: 1200000012000000
         paramName:
         - delegateInterface
         - methodSignature
-        - _event
-        - delegateInterface
-        - methodSignature
-        - _event
-        - delegateInterface
-        - methodSignature
-        - _event
-        - delegateInterface
-        - methodSignature
-        paramDataPos: 000000000100000002000000030000000400000005000000060000000700000008000000090000000a000000
-        paramByteDataSize: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+        paramDataPos: 0000000001000000
+        paramByteDataSize: 0000000000000000
     - name: On Hold
       description: 
       colorIndex: 0
@@ -587,25 +518,16 @@ MonoBehaviour:
     - name: Call Dialed
       isSystemEvent: 0
       isGlobal: 0
-    - name: Change Volume
-      isSystemEvent: 0
-      isGlobal: 0
     - name: Hung Up
       isSystemEvent: 0
       isGlobal: 0
     - name: Left Message
       isSystemEvent: 0
       isGlobal: 0
-    - name: Mute Microphone
-      isSystemEvent: 0
-      isGlobal: 0
     - name: Off Hold
       isSystemEvent: 0
       isGlobal: 0
     - name: On Hold
-      isSystemEvent: 0
-      isGlobal: 0
-    - name: Unmute Microphone
       isSystemEvent: 0
       isGlobal: 0
     globalTransitions: []

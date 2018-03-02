@@ -45,9 +45,6 @@ namespace UnityFSMCodeGenerator.Examples
     {
         void StartRinging();
         void StopRinging();
-        void Mute();
-        void Unmute();
-        void ChangeVolume();
         void VolumeUp();
         void VolumeDown();
     }
@@ -60,24 +57,35 @@ namespace UnityFSMCodeGenerator.Examples
     {
         private TelephoneFSM fsm;
         private TelephoneFSM.IContext context;
+        private TelephoneVolumeFSM volumeFsm;
         private float volume;
         private Coroutine ringing;
         private Coroutine pulsing;
         private bool listenToggleChange = true;
 
+        [Header("Status Info")]
         public Text activeState;
         public Text statusMessage;
+
+        [Header("Call Control")]
         public Button callButton;
         public Button hangUpButton;
         public Button answerCallButton;
-        public AudioSource ringer;
-        public AudioSource voice;
-        public float delayBetweenRings = 1f;
-        public Animator imageAnimator;
-        public int numHapticPulses = 2;
         public Image onHoldBackground;
         public Toggle onHoldToggle;
+
+        [Header("\"Haptics\"")]
+        public Animator imageAnimator;
+        public int numHapticPulses = 2;
+
+        [Header("Audio")]
+        public float delayBetweenRings = 1f;
+        public AudioSource ringer;
+        public AudioSource voice;
         public float startVolume = 0.6f;
+        public Button volumeUpButton;
+        public Button volumeDownButton;
+        public Text volumePercent;
 
         UnityFSMCodeGenerator.BaseFsm UnityFSMCodeGenerator.IHaveBaseFsm.BaseFsm { get { return fsm; }}
 
@@ -87,11 +95,16 @@ namespace UnityFSMCodeGenerator.Examples
             context = TelephoneFSM.NewDefaultContext(this, this, this);
             fsm.Bind(context);
 
+            volumeFsm = new TelephoneVolumeFSM();
+            volumeFsm.Bind(TelephoneVolumeFSM.NewDefaultContext(this));
+
             volume = startVolume;
             ringer.volume = startVolume;
             voice.volume = startVolume;
 
             statusMessage.text = "";
+
+            volumePercent.text = ((int)(volume * 100f)).ToString() + "%";
         }
 
         private void Update()
@@ -126,6 +139,9 @@ namespace UnityFSMCodeGenerator.Examples
                 listenToggleChange = true;
                 break;
             }
+
+            volumeUpButton.interactable = volume < 1f;
+            volumeDownButton.interactable = volume > 0f;
         }
 
         public void OnCallPhoneClicked()
@@ -155,6 +171,18 @@ namespace UnityFSMCodeGenerator.Examples
             else {
                 fsm.SendEvent(TelephoneFSM.Event.OffHold);
             }
+        }
+
+        public void OnVolumeUpClicked()
+        {
+            volumeFsm.SendEvent(TelephoneVolumeFSM.Event.VolumeUp);
+            volumePercent.text = ((int)(volume * 100f)).ToString() + "%";
+        }
+
+        public void OnVolumeDownClicked()
+        {
+            volumeFsm.SendEvent(TelephoneVolumeFSM.Event.VolumeDown);
+            volumePercent.text = ((int)(volume * 100f)).ToString() + "%";
         }
 
         #region ITelephone
@@ -204,6 +232,7 @@ namespace UnityFSMCodeGenerator.Examples
             ringer.Stop();
         }
 
+
         private IEnumerator Ring()
         {
             var wait = new WaitForSeconds(delayBetweenRings);
@@ -217,34 +246,18 @@ namespace UnityFSMCodeGenerator.Examples
             }
         }
 
-        void IAudioControl.Mute()
-        {
-            ringer.volume = 0f;
-            voice.volume = 0f;
-        }
-
-        void IAudioControl.Unmute()
-        {
-            ringer.volume = volume;
-            voice.volume = volume;
-        }
-
         void IAudioControl.VolumeUp()
         {
-            volume = Mathf.Min(1f, volume + 0.2f);
+            volume = Mathf.Min(1f, volume + 0.25f);
             ringer.volume = volume;
             voice.volume = volume;
         }
 
         void IAudioControl.VolumeDown()
         {
-            volume = Mathf.Max(0f, volume - 0.2f);
+            volume = Mathf.Max(0f, volume - 0.25f);
             ringer.volume = volume;
             voice.volume = volume;
-        }
-
-        void IAudioControl.ChangeVolume()
-        {
         }
 
         #endregion
