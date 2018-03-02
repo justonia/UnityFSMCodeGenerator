@@ -67,4 +67,4 @@ There is a `FsmViewer` component you can stick on a GameObject and link up to Mo
 
 Even better, if you have PlayMaker installed a "Graph View" option shows up. When pressed, an instance of the `PlayMakerFSM` used to generate the code FSM is viewable within the PlayMaker UI and will update to show the state the code FSM is in.
 
-![PlayMaker graph view](https://github.com/justonia/UnityFSMCodeGenerator/raw/master/Docs/fsmviewer_1_v01.png)
+![PlayMaker graph view](https://github.com/justonia/UnityFSMCodeGenerator/raw/master/Docs/fsmviewer_1_v01.PNG)
