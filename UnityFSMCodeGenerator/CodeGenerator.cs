@@ -85,7 +85,7 @@ namespace UnityFSMCodeGenerator
                     .Replace("{{handleinternalactions}}", GetHandleInternalActions(model, varNames))
                     .Replace("{{dispatchonenter}}", GetDispatchOnEnter(model, varNames))
                     .Replace("{{dispatchonexit}}", GetDispatchOnExit(model, varNames))
-                    .Replace("{{debugsupport}}", GetDebugSupport(model, varNames)),
+                    .Replace("{{introspectionsupport}}", GetDebugSupport(model, varNames)),
                 indentLevel));
             
             // Close namespace
@@ -113,7 +113,7 @@ namespace UnityFSMCodeGenerator
 
         private string GetDebugSupport(FsmModel model, VarNames varNames)
         {
-            if (!options.enableDebugSupport) {
+            if (!options.enableIntrospectionSupport) {
                 return "";
             }
 
@@ -140,7 +140,7 @@ namespace UnityFSMCodeGenerator
                 sb.Append("\",\n");
             }
 
-            return PostIndent(debugSupportTemplate
+            return PostIndent(introspectionSupportTemplate
                 .Replace("{{statelookups}}", stateLookups)
                 .Replace("{{statelist}}", sb.ToString()),
                 options.padding);
@@ -148,11 +148,11 @@ namespace UnityFSMCodeGenerator
 
         private string GetImplementInterfaces(FsmModel model, VarNames varNames)
         {
-            if (!options.enableDebugSupport) {
+            if (!options.enableIntrospectionSupport) {
                 return "";
             }
 
-            return ", UnityFSMCodeGenerator.IFsmDebugSupport";
+            return ", UnityFSMCodeGenerator.IFsmIntrospectionSupport";
         }
 
         private string GetStartState(FsmModel model, VarNames varNames)
@@ -631,14 +631,14 @@ public class {{cls}} :  UnityFSMCodeGenerator.BaseFsm{{implementinterfaces}}
 {{dispatchonenter}}
 {{dispatchonexit}}
     #endregion
-{{debugsupport}}
+{{introspectionsupport}}
 }
 ";
 
-    private readonly string debugSupportTemplate = @"
-#region IFsmDebugSupport
+    private readonly string introspectionSupportTemplate = @"
+#region IFsmIntrospectionSupport
 
-string IFsmDebugSupport.GeneratedFromPrefabGUID { get { return GeneratedFromGUID; }}
+string IFsmIntrospectionSupport.GeneratedFromPrefabGUID { get { return GeneratedFromGUID; }}
 
 public struct StateComparer : IEqualityComparer<State>
 {
@@ -651,9 +651,9 @@ private Dictionary<State, string> debugStateLookup = new Dictionary<State, strin
 private List<string> debugStringStates = new List<string>(){
 {{statelist}}};
 
-string UnityFSMCodeGenerator.IFsmDebugSupport.State { get { return context != null ? debugStateLookup[context.State] : null; }}
+string UnityFSMCodeGenerator.IFsmIntrospectionSupport.State { get { return context != null ? debugStateLookup[context.State] : null; }}
 
-List<string> UnityFSMCodeGenerator.IFsmDebugSupport.AllStates { get { return debugStringStates; }}
+List<string> UnityFSMCodeGenerator.IFsmIntrospectionSupport.AllStates { get { return debugStringStates; }}
 
 #endregion";
 

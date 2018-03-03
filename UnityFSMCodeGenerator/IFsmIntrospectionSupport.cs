@@ -26,19 +26,14 @@ using System.Collections.Generic;
 
 namespace UnityFSMCodeGenerator
 {
-    public interface IFsmContext
+    // If enabled, the compilation process will output extra information and
+    // have the generated FSM implement this interface.
+    public interface IFsmIntrospectionSupport
     {
-    }
-    
-    public interface IHaveBaseFsm
-    {
-        BaseFsm[] BaseFsms { get; }
-    }
-
-    // Currently exists as a marker class to be able to find all implementations
-    // in both the assemblies and the project.
-    public abstract class BaseFsm
-    {
-        public abstract IFsmContext BaseContext { get; }
+        // These string names will be whatever the name of the states were before
+        // the generator trimmed and turned them into enum values.
+        string State { get; }
+        List<string> AllStates { get; }
+        string GeneratedFromPrefabGUID { get; }
     }
 }

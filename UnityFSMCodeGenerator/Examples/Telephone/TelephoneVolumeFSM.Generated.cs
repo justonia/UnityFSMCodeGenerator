@@ -11,7 +11,7 @@ using System.Collections.Generic;
 namespace UnityFSMCodeGenerator.Examples
 {
     // This FSM controls the volume of the phone.
-    public class TelephoneVolumeFSM :  UnityFSMCodeGenerator.BaseFsm, UnityFSMCodeGenerator.IFsmDebugSupport
+    public class TelephoneVolumeFSM :  UnityFSMCodeGenerator.BaseFsm, UnityFSMCodeGenerator.IFsmIntrospectionSupport
     {
         public readonly static string GeneratedFromPrefab = "Assets/UnityFSMCodeGenerator/UnityFSMCodeGenerator/Examples/Telephone/TelephoneVolumeFSM.prefab";
         public readonly static string GeneratedFromGUID = "b81d0d14e94579c4c85b7b09730d97dd";
@@ -241,9 +241,9 @@ namespace UnityFSMCodeGenerator.Examples
     
         #endregion
         
-        #region IFsmDebugSupport
+        #region IFsmIntrospectionSupport
         
-        string IFsmDebugSupport.GeneratedFromPrefabGUID { get { return GeneratedFromGUID; }}
+        string IFsmIntrospectionSupport.GeneratedFromPrefabGUID { get { return GeneratedFromGUID; }}
         
         public struct StateComparer : IEqualityComparer<State>
         {
@@ -262,9 +262,9 @@ namespace UnityFSMCodeGenerator.Examples
             "Volume Down",
         };
         
-        string UnityFSMCodeGenerator.IFsmDebugSupport.State { get { return context != null ? debugStateLookup[context.State] : null; }}
+        string UnityFSMCodeGenerator.IFsmIntrospectionSupport.State { get { return context != null ? debugStateLookup[context.State] : null; }}
         
-        List<string> UnityFSMCodeGenerator.IFsmDebugSupport.AllStates { get { return debugStringStates; }}
+        List<string> UnityFSMCodeGenerator.IFsmIntrospectionSupport.AllStates { get { return debugStringStates; }}
         
         #endregion
     

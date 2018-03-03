@@ -43,21 +43,14 @@ namespace UnityFSMCodeGenerator
         private bool isDirty;
         private List<TrackingPair> tracking = new List<TrackingPair>();
 
-        public PlayMakerCodeGenerator[] fsmPrefabs;
-
-        private void Awake()
-        {
-        }
-
-        [System.Serializable]
         public class TrackingPair
         {
             public PlayMakerCodeGenerator fsmPrefab;
             public MonoBehaviour fsmOwner;
             public BaseFsm targetFsm;
-            public IFsmDebugSupport fsmDebug;
+            public IFsmIntrospectionSupport fsmDebug;
             #if PLAYMAKER
-            [NonSerialized] public PlayMakerFSM view;
+            public PlayMakerFSM view;
             #endif
         }
 
@@ -87,36 +80,52 @@ namespace UnityFSMCodeGenerator
             #if UNITY_EDITOR
             // Discover all FSMs on this game object
             var owners = GetComponents<MonoBehaviour>().Where(b => b is IHaveBaseFsm).ToList();
+
             foreach (var owner in owners) {
                 foreach (var fsm in (owner as IHaveBaseFsm).BaseFsms) {
                     var pair = new TrackingPair{
                         fsmOwner = owner,
                         targetFsm = fsm,
-                        fsmDebug = fsm as IFsmDebugSupport,
+                        fsmDebug = fsm as IFsmIntrospectionSupport,
                     };
 
                     if (pair.fsmDebug == null) {
                         continue;
                     }
 
-                    var guid = pair.fsmDebug.GeneratedFromPrefabGUID;
-                    if (!string.IsNullOrEmpty(guid)) {
-                        foreach (var prefab in fsmPrefabs) {
-                            if (PrefabUtility.GetPrefabType(prefab) != PrefabType.Prefab) {
-                                continue;
-                            }
-
-                            var path = AssetDatabase.GetAssetPath(prefab);
-                            var prefabGuid = AssetDatabase.AssetPathToGUID(path);
-                            if (prefabGuid == guid) {
-                                pair.fsmPrefab = prefab;
-                                break;
-                            }
-                        }
-                    }
-
                     tracking.Add(pair);
                 }
+            }
+
+            // Collect all prefab FSMs
+            var prefabs = new Dictionary<string, PlayMakerCodeGenerator>();
+            foreach (var guid in tracking.Select(p => p.fsmDebug.GeneratedFromPrefabGUID)) {
+                if (string.IsNullOrEmpty(guid)) {
+                    continue;
+                }
+                
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                if (string.IsNullOrEmpty(path)) {
+                    continue;
+                }
+
+                var gen = AssetDatabase.LoadAssetAtPath(path, typeof(PlayMakerCodeGenerator));
+                if (gen == null) {
+                    continue;
+                }
+
+                prefabs[guid] = gen as PlayMakerCodeGenerator;
+            }
+
+
+            foreach (var pair in tracking) {
+                var guid = pair.fsmDebug.GeneratedFromPrefabGUID;
+
+                if (string.IsNullOrEmpty(guid)) {
+                    continue;
+                }
+
+                prefabs.TryGetValue(guid, out pair.fsmPrefab);
             }
             #endif
         }
