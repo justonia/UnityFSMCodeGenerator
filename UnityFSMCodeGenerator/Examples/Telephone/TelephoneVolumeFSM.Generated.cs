@@ -11,7 +11,9 @@ using System.Collections.Generic;
 namespace UnityFSMCodeGenerator.Examples
 {
     // This FSM controls the volume of the phone.
-    public class TelephoneVolumeFSM :  UnityFSMCodeGenerator.BaseFsm, UnityFSMCodeGenerator.IFsmIntrospectionSupport
+    public class TelephoneVolumeFSM :  UnityFSMCodeGenerator.BaseFsm,
+        UnityFSMCodeGenerator.IFsmIntrospectionSupport,
+        UnityFSMCodeGenerator.IFsmDebugSupport
     {
         public readonly static string GeneratedFromPrefab = "Assets/UnityFSMCodeGenerator/UnityFSMCodeGenerator/Examples/Telephone/TelephoneVolumeFSM.prefab";
         public readonly static string GeneratedFromGUID = "b81d0d14e94579c4c85b7b09730d97dd";
@@ -222,7 +224,12 @@ namespace UnityFSMCodeGenerator.Examples
     
         
         private void DispatchOnEnter(State state)
-        {
+        {    
+            if (onEnterBreakpoints.Contains(state)) {
+                UnityEngine.Debug.LogFormat("{0}.OnEnter breakpoint triggered for state: {1}", GetType().Name, state.ToString());
+                UnityEngine.Debug.Break();
+            }
+        
             switch (state) {
             case State.WaitForEvent:
                 break;
@@ -254,12 +261,12 @@ namespace UnityFSMCodeGenerator.Examples
         
         string IFsmIntrospectionSupport.GeneratedFromPrefabGUID { get { return GeneratedFromGUID; }}
         
-        private Dictionary<State, string> debugStateLookup = new Dictionary<State, string>(new StateComparer()){
+        private Dictionary<State, string> introspectionStateLookup = new Dictionary<State, string>(new StateComparer()){
             { State.WaitForEvent, "Wait For Event" },
             { State.VolumeUp, "Volume Up" },
             { State.VolumeDown, "Volume Down" },
         };
-        private List<string> debugStringStates = new List<string>(){
+        private List<string> introspectionStringStates = new List<string>(){
             "Wait For Event",
             "Volume Up",
             "Volume Down",
@@ -270,11 +277,42 @@ namespace UnityFSMCodeGenerator.Examples
             { "Volume Down", State.VolumeDown },
         };
         
-        string UnityFSMCodeGenerator.IFsmIntrospectionSupport.State { get { return context != null ? debugStateLookup[context.State] : null; }}
+        string UnityFSMCodeGenerator.IFsmIntrospectionSupport.State { get { return context != null ? introspectionStateLookup[context.State] : null; }}
         
-        List<string> UnityFSMCodeGenerator.IFsmIntrospectionSupport.AllStates { get { return debugStringStates; }}
+        List<string> UnityFSMCodeGenerator.IFsmIntrospectionSupport.AllStates { get { return introspectionStringStates; }}
         
         object UnityFSMCodeGenerator.IFsmIntrospectionSupport.EnumStateFromString(string stateName) { return stateNameToStateLookup[stateName]; }
+        
+        #endregion
+    
+        
+        #region IFsmDebugSupport
+        
+        private UnityFSMCodeGenerator.BreakpointAction onBreakpointSet = null;
+        private UnityFSMCodeGenerator.BreakpointAction onBreakpointHit = null;
+        private UnityFSMCodeGenerator.BreakpointsResetAction onBreakpointsReset = null;
+        private HashSet<State> onEnterBreakpoints = new HashSet<State>(new StateComparer());
+        
+        UnityFSMCodeGenerator.BreakpointAction UnityFSMCodeGenerator.IFsmDebugSupport.OnBreakpointSet { get { return onBreakpointSet; }}
+        UnityFSMCodeGenerator.BreakpointAction UnityFSMCodeGenerator.IFsmDebugSupport.OnBreakpointHit { get { return onBreakpointHit; }}
+        UnityFSMCodeGenerator.BreakpointsResetAction UnityFSMCodeGenerator.IFsmDebugSupport.OnBreakpointsReset { get { return onBreakpointsReset; }}
+        
+        void UnityFSMCodeGenerator.IFsmDebugSupport.SetOnEnterBreakpoint(object _state)
+        {
+            var state = (State)_state;
+            onEnterBreakpoints.Add(state);
+            if (onBreakpointSet != null) {
+                onBreakpointSet(_state);
+            }
+        }
+        
+        void UnityFSMCodeGenerator.IFsmDebugSupport.ResetBreakpoints()
+        {
+            onEnterBreakpoints.Clear();
+            if (onBreakpointsReset != null) {
+                onBreakpointsReset();
+            }
+        }
         
         #endregion
     

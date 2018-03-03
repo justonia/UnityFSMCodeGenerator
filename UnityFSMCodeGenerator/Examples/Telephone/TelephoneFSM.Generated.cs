@@ -11,7 +11,8 @@ using System.Collections.Generic;
 namespace UnityFSMCodeGenerator.Examples
 {
     // This FSM models a simple telephone that is capable of receiving calls, putting them on hold, or leaving a message.
-    public class TelephoneFSM :  UnityFSMCodeGenerator.BaseFsm, UnityFSMCodeGenerator.IFsmIntrospectionSupport
+    public class TelephoneFSM :  UnityFSMCodeGenerator.BaseFsm,
+        UnityFSMCodeGenerator.IFsmIntrospectionSupport
     {
         public readonly static string GeneratedFromPrefab = "Assets/UnityFSMCodeGenerator/UnityFSMCodeGenerator/Examples/Telephone/TelephoneFSM.prefab";
         public readonly static string GeneratedFromGUID = "3045bb4d728b8b5478f1e8a3ed6bab84";
@@ -351,6 +352,7 @@ namespace UnityFSMCodeGenerator.Examples
         object UnityFSMCodeGenerator.IFsmIntrospectionSupport.EnumStateFromString(string stateName) { return stateNameToStateLookup[stateName]; }
         
         #endregion
+    
     
     }
     

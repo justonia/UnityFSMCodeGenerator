@@ -85,7 +85,8 @@ namespace UnityFSMCodeGenerator
                     .Replace("{{handleinternalactions}}", GetHandleInternalActions(model, varNames))
                     .Replace("{{dispatchonenter}}", GetDispatchOnEnter(model, varNames))
                     .Replace("{{dispatchonexit}}", GetDispatchOnExit(model, varNames))
-                    .Replace("{{introspectionsupport}}", GetIntrospectionSupport(model, varNames)),
+                    .Replace("{{introspectionsupport}}", GetIntrospectionSupport(model, varNames))
+                    .Replace("{{debugsupport}}", GetDebugSupport(model, varNames)),
                 indentLevel));
             
             // Close namespace
@@ -109,6 +110,17 @@ namespace UnityFSMCodeGenerator
             public Dictionary<string, string> stateNameToEnum;
             public Dictionary<string, string> eventNameToEnum;
             public Dictionary<MethodInfo, string> methodInvoke;
+        }
+
+        private string GetDebugSupport(FsmModel model, VarNames varNames)
+        {
+            if (!options.enableDebugSupport) {
+                return "";
+            }
+
+            return PostIndent(debugSupportTemplate,
+                //.Replace("{{statelookups}}", stateLookups)
+                options.padding);
         }
 
         private string GetIntrospectionSupport(FsmModel model, VarNames varNames)
@@ -165,11 +177,30 @@ namespace UnityFSMCodeGenerator
 
         private string GetImplementInterfaces(FsmModel model, VarNames varNames)
         {
-            if (!options.enableIntrospectionSupport) {
-                return "";
+            // This is gross, should add a list of interfaces and make it cleaner
+            var sb = new System.Text.StringBuilder();
+            bool addedPrefix = false;
+            if (options.enableIntrospectionSupport) {
+                addedPrefix = true;
+                sb.Append(",\n");
+                PreIndent(sb, options.padding);
+                sb.Append("UnityFSMCodeGenerator.IFsmIntrospectionSupport");
             }
 
-            return ", UnityFSMCodeGenerator.IFsmIntrospectionSupport";
+            if (options.enableDebugSupport) {
+                if (!addedPrefix) {
+                    sb.Append(",\n");
+                }
+
+                if (options.enableIntrospectionSupport) {
+                    sb.Append(",\n");
+                }
+
+                PreIndent(sb, options.padding);
+                sb.Append("UnityFSMCodeGenerator.IFsmDebugSupport");
+            }
+
+            return sb.ToString();
         }
 
         private string GetStartState(FsmModel model, VarNames varNames)
@@ -208,6 +239,7 @@ namespace UnityFSMCodeGenerator
             }
 
             return PostIndent(dispatchOnEnterTemplate
+                .Replace("{{onenterbreakpoint}}", options.enableDebugSupport ? PostIndent(debugSupportOnEnterTemplate, options.padding) : "")
                 .Replace("{{states}}", sb.ToString()), 
                 options.padding);
         }
@@ -658,6 +690,7 @@ public class {{cls}} :  UnityFSMCodeGenerator.BaseFsm{{implementinterfaces}}
 {{dispatchonexit}}
     #endregion
 {{introspectionsupport}}
+{{debugsupport}}
 }
 ";
 
@@ -666,20 +699,57 @@ public class {{cls}} :  UnityFSMCodeGenerator.BaseFsm{{implementinterfaces}}
 
 string IFsmIntrospectionSupport.GeneratedFromPrefabGUID { get { return GeneratedFromGUID; }}
 
-private Dictionary<State, string> debugStateLookup = new Dictionary<State, string>(new StateComparer()){
+private Dictionary<State, string> introspectionStateLookup = new Dictionary<State, string>(new StateComparer()){
 {{statelookups}}};
-private List<string> debugStringStates = new List<string>(){
+private List<string> introspectionStringStates = new List<string>(){
 {{statelist}}};
 private Dictionary<string, State> stateNameToStateLookup = new Dictionary<string, State>(){
 {{stateenumlookup}}};
 
-string UnityFSMCodeGenerator.IFsmIntrospectionSupport.State { get { return context != null ? debugStateLookup[context.State] : null; }}
+string UnityFSMCodeGenerator.IFsmIntrospectionSupport.State { get { return context != null ? introspectionStateLookup[context.State] : null; }}
 
-List<string> UnityFSMCodeGenerator.IFsmIntrospectionSupport.AllStates { get { return debugStringStates; }}
+List<string> UnityFSMCodeGenerator.IFsmIntrospectionSupport.AllStates { get { return introspectionStringStates; }}
 
 object UnityFSMCodeGenerator.IFsmIntrospectionSupport.EnumStateFromString(string stateName) { return stateNameToStateLookup[stateName]; }
 
 #endregion";
+
+    private readonly string debugSupportTemplate = @"
+#region IFsmDebugSupport
+
+private UnityFSMCodeGenerator.BreakpointAction onBreakpointSet = null;
+private UnityFSMCodeGenerator.BreakpointAction onBreakpointHit = null;
+private UnityFSMCodeGenerator.BreakpointsResetAction onBreakpointsReset = null;
+private HashSet<State> onEnterBreakpoints = new HashSet<State>(new StateComparer());
+
+UnityFSMCodeGenerator.BreakpointAction UnityFSMCodeGenerator.IFsmDebugSupport.OnBreakpointSet { get { return onBreakpointSet; }}
+UnityFSMCodeGenerator.BreakpointAction UnityFSMCodeGenerator.IFsmDebugSupport.OnBreakpointHit { get { return onBreakpointHit; }}
+UnityFSMCodeGenerator.BreakpointsResetAction UnityFSMCodeGenerator.IFsmDebugSupport.OnBreakpointsReset { get { return onBreakpointsReset; }}
+
+void UnityFSMCodeGenerator.IFsmDebugSupport.SetOnEnterBreakpoint(object _state)
+{
+    var state = (State)_state;
+    onEnterBreakpoints.Add(state);
+    if (onBreakpointSet != null) {
+        onBreakpointSet(_state);
+    }
+}
+
+void UnityFSMCodeGenerator.IFsmDebugSupport.ResetBreakpoints()
+{
+    onEnterBreakpoints.Clear();
+    if (onBreakpointsReset != null) {
+        onBreakpointsReset();
+    }
+}
+
+#endregion";
+
+    private readonly string debugSupportOnEnterTemplate = @"
+if (onEnterBreakpoints.Contains(state)) {
+    UnityEngine.Debug.LogFormat(""{0}.OnEnter breakpoint triggered for state: {1}"", GetType().Name, state.ToString());
+    UnityEngine.Debug.Break();
+}";
 
     private readonly string sendInternalEventBaseTemplate = @"
 private void SingleInternalSendEvent(QueuedEvent _eventData)
@@ -718,7 +788,7 @@ default:
 
     private readonly string dispatchOnEnterTemplate = @"
 private void DispatchOnEnter(State state)
-{
+{{{onenterbreakpoint}}
     switch (state) {{{states}}
     }
 }";

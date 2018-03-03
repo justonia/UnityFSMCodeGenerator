@@ -22,17 +22,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Collections.Generic;
+
 namespace UnityFSMCodeGenerator
 {
-    [System.Serializable]
-    public class CodeGeneratorOptions
+    public delegate void BreakpointAction(object state);
+    public delegate void BreakpointsResetAction();
+
+    // If enabled, the compilation process will add support for this interface.
+    public interface IFsmDebugSupport
     {
-        public string _namespace;
-        public bool enableIntrospectionSupport = true;
-        public bool enableDebugSupport = false;
-        public bool commentedOut = false;
-        public int padding = 4;
-        public bool verbose = false;
-        // TODO: isPartialClass
+        BreakpointAction OnBreakpointSet { get; }
+        BreakpointAction OnBreakpointHit { get; }
+        BreakpointsResetAction OnBreakpointsReset { get; }
+
+        // state is the boxed FSM State enum.
+        void SetOnEnterBreakpoint(object state);
+        void ResetBreakpoints();
     }
 }
