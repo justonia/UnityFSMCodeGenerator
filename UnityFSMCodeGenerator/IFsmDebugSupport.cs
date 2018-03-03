@@ -26,18 +26,20 @@ using System.Collections.Generic;
 
 namespace UnityFSMCodeGenerator
 {
-    public delegate void BreakpointAction(object state);
-    public delegate void BreakpointsResetAction();
+    public delegate void BreakpointAction(BaseFsm fsm, object state);
+    public delegate void BreakpointsResetAction(BaseFsm fsm);
 
     // If enabled, the compilation process will add support for this interface.
     public interface IFsmDebugSupport
     {
-        BreakpointAction OnBreakpointSet { get; }
-        BreakpointAction OnBreakpointHit { get; }
-        BreakpointsResetAction OnBreakpointsReset { get; }
+        event BreakpointAction OnBreakpointSet;
+        event BreakpointAction OnBreakpointHit;
+        event BreakpointsResetAction OnBreakpointsReset;
 
         // state is the boxed FSM State enum.
         void SetOnEnterBreakpoint(object state);
+        int OnEnterBreakpointCount { get; }
+
         void ResetBreakpoints();
     }
 }

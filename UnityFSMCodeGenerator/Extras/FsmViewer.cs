@@ -31,6 +31,9 @@ using UnityEngine.Events;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+#if PLAYMAKER
+using HutongGames.PlayMaker;
+#endif
 
 namespace UnityFSMCodeGenerator
 {
@@ -48,9 +51,13 @@ namespace UnityFSMCodeGenerator
             public PlayMakerCodeGenerator fsmPrefab;
             public MonoBehaviour fsmOwner;
             public BaseFsm targetFsm;
-            public IFsmIntrospectionSupport fsmDebug;
+            public IFsmIntrospectionSupport fsmIntrospection;
+            public IFsmDebugSupport fsmDebug;
             #if PLAYMAKER
             public PlayMakerFSM view;
+            public bool settingPlayMakerBreakpoint;
+            public HashSet<FsmState> currentEnterBreakpoints = new HashSet<FsmState>();
+            public HashSet<FsmState> wantEnterBreakpoints = new HashSet<FsmState>();
             #endif
         }
 
@@ -63,6 +70,13 @@ namespace UnityFSMCodeGenerator
         {
             // Don't want this crap to run unless we're in the editor
             #if UNITY_EDITOR
+            foreach (var pair in tracking) {
+                if (pair.fsmDebug != null) {
+                    pair.fsmDebug.OnBreakpointHit -= OnFsmBreakpointHit;
+                    pair.fsmDebug.OnBreakpointSet -= OnFsmBreakpointSet;
+                    pair.fsmDebug.OnBreakpointsReset -= OnFsmBreakpointsReset;
+                }
+            }
             tracking.Clear();
             DiscoverTrackingPairs();
 
@@ -91,11 +105,18 @@ namespace UnityFSMCodeGenerator
                     var pair = new TrackingPair{
                         fsmOwner = owner,
                         targetFsm = fsm,
-                        fsmDebug = fsm as IFsmIntrospectionSupport,
+                        fsmIntrospection = fsm as IFsmIntrospectionSupport,
+                        fsmDebug = fsm as IFsmDebugSupport,
                     };
 
-                    if (pair.fsmDebug == null) {
+                    if (pair.fsmIntrospection == null) {
                         continue;
+                    }
+
+                    if (pair.fsmDebug != null) {
+                        pair.fsmDebug.OnBreakpointHit += OnFsmBreakpointHit;
+                        pair.fsmDebug.OnBreakpointSet += OnFsmBreakpointSet;
+                        pair.fsmDebug.OnBreakpointsReset += OnFsmBreakpointsReset;
                     }
 
                     tracking.Add(pair);
@@ -104,7 +125,7 @@ namespace UnityFSMCodeGenerator
 
             // Collect all prefab FSMs
             var prefabs = new Dictionary<string, PlayMakerCodeGenerator>();
-            foreach (var guid in tracking.Select(p => p.fsmDebug.GeneratedFromPrefabGUID)) {
+            foreach (var guid in tracking.Select(p => p.fsmIntrospection.GeneratedFromPrefabGUID)) {
                 if (string.IsNullOrEmpty(guid)) {
                     continue;
                 }
@@ -124,7 +145,7 @@ namespace UnityFSMCodeGenerator
 
 
             foreach (var pair in tracking) {
-                var guid = pair.fsmDebug.GeneratedFromPrefabGUID;
+                var guid = pair.fsmIntrospection.GeneratedFromPrefabGUID;
 
                 if (string.IsNullOrEmpty(guid)) {
                     continue;
@@ -142,7 +163,7 @@ namespace UnityFSMCodeGenerator
             foreach (var pair in tracking) {
                 DestroyView(pair);
                 pair.targetFsm = null;
-                pair.fsmDebug = null;
+                pair.fsmIntrospection = null;
             }
             #endif
         }
@@ -160,8 +181,7 @@ namespace UnityFSMCodeGenerator
         private IEnumerator Track(TrackingPair pair)
         {
             while (true) {
-                var currentFsmState = pair.fsmDebug.State;
-                isDirty = true;
+                var currentFsmState = pair.fsmIntrospection.State;
                 
                 #if PLAYMAKER
                 if (pair.view != null) { 
@@ -169,9 +189,10 @@ namespace UnityFSMCodeGenerator
                 }
                 #endif
 
-                while (currentFsmState == pair.fsmDebug.State) {
+                while (currentFsmState == pair.fsmIntrospection.State) {
                     #if PLAYMAKER
                     if (pair.view != null) {
+                        UpdatePlayMakerBreakpoints(pair);
                         pair.view.Fsm.Update();
                     }
                     #endif
@@ -180,10 +201,147 @@ namespace UnityFSMCodeGenerator
             }
         }
 
+        #if PLAYMAKER
+        private HashSet<FsmState> tempBreakpoints = new HashSet<FsmState>();
+
+        private void UpdatePlayMakerBreakpoints(TrackingPair pair)
+        {
+            tempBreakpoints.Clear();
+
+            pair.wantEnterBreakpoints.Clear(); 
+            foreach (var state in pair.view.FsmStates) {
+                if (state.IsBreakpoint) {
+                    pair.wantEnterBreakpoints.Add(state);
+                }
+            }
+             
+            // Find and remove new/removed breakpoints
+            bool isDirty = false; 
+            foreach (var breakpoint in pair.wantEnterBreakpoints) {
+                if (!pair.currentEnterBreakpoints.Contains(breakpoint)) {
+                    tempBreakpoints.Add(breakpoint);
+                    isDirty = true; 
+                }
+            }
+
+            foreach (var breakpoint in pair.currentEnterBreakpoints) {
+                if (pair.wantEnterBreakpoints.Contains(breakpoint)) {
+                    tempBreakpoints.Add(breakpoint);
+                }
+                else {
+                    isDirty = true;
+                }
+            }
+
+            if (isDirty) {
+                var b = pair.currentEnterBreakpoints;
+                pair.currentEnterBreakpoints = tempBreakpoints;
+                tempBreakpoints = b;
+
+                if (pair.fsmDebug == null) {
+                    Debug.LogWarningFormat("Cannot set breakpoint on {0}, IFsmDebugSupport was not enabled in compiler options", pair.targetFsm.GetType().Name);
+                }
+                else {
+                    pair.settingPlayMakerBreakpoint = true;
+                    pair.fsmDebug.ResetBreakpoints();
+                    foreach (var breakpoint in pair.currentEnterBreakpoints) {
+                        pair.fsmDebug.SetOnEnterBreakpoint(
+                            pair.fsmIntrospection.EnumStateFromString(breakpoint.Name));
+                    }
+                    pair.settingPlayMakerBreakpoint = false;
+                }
+                isDirty = false;
+            }
+        }
+        #endif
+
+        private void OnFsmBreakpointHit(BaseFsm fsm, object state)
+        {
+            #if PLAYMAKER
+            var pair = GetTrackingPair(fsm);
+            if (pair == null || pair.view == null) {
+                return;
+            }
+
+            // Force update UI
+            if (pair.view != null) { 
+                var currentFsmState = pair.fsmIntrospection.State;
+                pair.view.SetState(currentFsmState);
+                pair.view.Fsm.Update();
+                if (WantRepaint != null) {
+                    WantRepaint();
+                }
+            }
+            #endif
+        }
+
+        private void OnFsmBreakpointSet(BaseFsm fsm, object state)
+        {
+            #if PLAYMAKER
+            var pair = GetTrackingPair(fsm);
+            if (pair == null || pair.view == null) {
+                return;
+            }
+
+            // Been set from code so update PlayMaker 
+            if (!pair.settingPlayMakerBreakpoint) {
+                var targetStateName = pair.fsmIntrospection.StateFromEnumState(state);
+                
+                foreach (var fsmState in pair.view.FsmStates) {
+                    if (fsmState.Name == targetStateName) {
+                        pair.currentEnterBreakpoints.Add(fsmState);
+                        fsmState.IsBreakpoint = true;
+                    }
+                }
+            }
+            #endif
+
+            if (WantRepaint != null) {
+                WantRepaint();
+            }
+        }
+        
+        private void OnFsmBreakpointsReset(BaseFsm fsm)
+        {
+            #if PLAYMAKER
+            var pair = GetTrackingPair(fsm);
+            if (pair == null || pair.view == null) {
+                return;
+            }
+
+            // Been set from code so update PlayMaker 
+            if (!pair.settingPlayMakerBreakpoint) {
+                foreach (var state in pair.view.FsmStates) {
+                    state.IsBreakpoint = false;
+                }
+
+                if (WantRepaint != null) {
+                    WantRepaint();
+                }
+            }
+            #endif
+
+        }
+
+        private TrackingPair GetTrackingPair(BaseFsm fsm)
+        {
+            if (tracking == null) {
+                return null;
+            }
+
+            foreach (var pair in tracking) {
+                if (pair.targetFsm == fsm) {
+                    return pair;
+                }
+            }
+
+            return null;
+        }
+
         public bool CanShowView(TrackingPair pair)
         {
             #if UNITY_EDITOR && PLAYMAKER
-            return pair.targetFsm != null && pair.fsmPrefab != null && pair.fsmDebug != null;
+            return pair.targetFsm != null && pair.fsmPrefab != null && pair.fsmIntrospection != null;
             #else
             return false;
             #endif
@@ -209,9 +367,9 @@ namespace UnityFSMCodeGenerator
 
             // Sanity check that states line up
             var fsmStates = fsm.FsmStates.Select(s => s.Name).ToList();
-            var intersectingStates = pair.fsmDebug.AllStates.Intersect(fsmStates).ToList();
+            var intersectingStates = pair.fsmIntrospection.AllStates.Intersect(fsmStates).ToList();
 
-            if (fsmStates.Count != pair.fsmDebug.AllStates.Count || intersectingStates.Count != pair.fsmDebug.AllStates.Count) {
+            if (fsmStates.Count != pair.fsmIntrospection.AllStates.Count || intersectingStates.Count != pair.fsmIntrospection.AllStates.Count) {
                 Debug.LogErrorFormat(gameObject, "Generated FSM and PlayMakerFSM do not have the same set of states");
                 Destroy(go);
                 return;

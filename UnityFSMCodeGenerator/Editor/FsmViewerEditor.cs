@@ -62,15 +62,24 @@ namespace UnityFSMCodeGenerator.Editor
         private void OnEnable()
         {
             if (Application.isPlaying) {
-                (target as FsmViewer).WantRepaint += this.Repaint;
+                (target as FsmViewer).WantRepaint += OnRepaint;
             }
         }
 
         private void OnDisable()
         {
             if (Application.isPlaying) {
-                (target as FsmViewer).WantRepaint -= this.Repaint;
+                (target as FsmViewer).WantRepaint -= OnRepaint;
             }
+        }
+
+        private void OnRepaint()
+        {
+            this.Repaint();
+            #if PLAYMAKER
+            HutongGames.PlayMakerEditor.FsmEditor.Instance.Update();
+            HutongGames.PlayMakerEditor.FsmEditor.RepaintAll();
+            #endif
         }
 
         public override void OnInspectorGUI()
@@ -95,8 +104,17 @@ namespace UnityFSMCodeGenerator.Editor
 
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("Active State:", labelWidth);
-                EditorGUILayout.LabelField(pair.fsmDebug.State, EditorStyles.boldLabel);
+                EditorGUILayout.LabelField(pair.fsmIntrospection.State, EditorStyles.boldLabel);
                 EditorGUILayout.EndHorizontal();
+
+                if (pair.fsmDebug != null && pair.fsmDebug.OnEnterBreakpointCount > 0) {
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField("Breakpoints:", labelWidth);
+                    if (GUILayout.Button("Reset", buttonMaxWidth)) {
+                        pair.fsmDebug.ResetBreakpoints();
+                    }
+                    EditorGUILayout.EndHorizontal();
+                }
 
                 #if PLAYMAKER
                 var activeFsm =  HutongGames.PlayMakerEditor.FsmEditor.SelectedFsmComponent;

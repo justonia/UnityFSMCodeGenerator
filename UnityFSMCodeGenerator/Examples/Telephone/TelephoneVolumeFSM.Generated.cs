@@ -227,6 +227,11 @@ namespace UnityFSMCodeGenerator.Examples
         {    
             if (onEnterBreakpoints.Contains(state)) {
                 UnityEngine.Debug.LogFormat("{0}.OnEnter breakpoint triggered for state: {1}", GetType().Name, state.ToString());
+                if (onBreakpointHit != null) {
+                    onBreakpointHit(this, state);
+                }
+                // IMPORTANT: This is not the same as setting a breakpoint in Visual Studio. This method
+                // will continue executing and the editor will pause at some point later in the frame.
                 UnityEngine.Debug.Break();
             }
         
@@ -279,6 +284,8 @@ namespace UnityFSMCodeGenerator.Examples
         
         string UnityFSMCodeGenerator.IFsmIntrospectionSupport.State { get { return context != null ? introspectionStateLookup[context.State] : null; }}
         
+        string UnityFSMCodeGenerator.IFsmIntrospectionSupport.StateFromEnumState(object state) { return introspectionStateLookup[(State)state]; }
+        
         List<string> UnityFSMCodeGenerator.IFsmIntrospectionSupport.AllStates { get { return introspectionStringStates; }}
         
         object UnityFSMCodeGenerator.IFsmIntrospectionSupport.EnumStateFromString(string stateName) { return stateNameToStateLookup[stateName]; }
@@ -293,16 +300,18 @@ namespace UnityFSMCodeGenerator.Examples
         private UnityFSMCodeGenerator.BreakpointsResetAction onBreakpointsReset = null;
         private HashSet<State> onEnterBreakpoints = new HashSet<State>(new StateComparer());
         
-        UnityFSMCodeGenerator.BreakpointAction UnityFSMCodeGenerator.IFsmDebugSupport.OnBreakpointSet { get { return onBreakpointSet; }}
-        UnityFSMCodeGenerator.BreakpointAction UnityFSMCodeGenerator.IFsmDebugSupport.OnBreakpointHit { get { return onBreakpointHit; }}
-        UnityFSMCodeGenerator.BreakpointsResetAction UnityFSMCodeGenerator.IFsmDebugSupport.OnBreakpointsReset { get { return onBreakpointsReset; }}
+        event UnityFSMCodeGenerator.BreakpointAction UnityFSMCodeGenerator.IFsmDebugSupport.OnBreakpointSet { add { onBreakpointSet += value; } remove { onBreakpointSet -= value; }}
+        event UnityFSMCodeGenerator.BreakpointAction UnityFSMCodeGenerator.IFsmDebugSupport.OnBreakpointHit { add { onBreakpointHit += value; } remove { onBreakpointHit -= value; }}
+        event UnityFSMCodeGenerator.BreakpointsResetAction UnityFSMCodeGenerator.IFsmDebugSupport.OnBreakpointsReset { add { onBreakpointsReset += value; } remove { onBreakpointsReset -= value; }}
+        
+        int UnityFSMCodeGenerator.IFsmDebugSupport.OnEnterBreakpointCount { get { return onEnterBreakpoints.Count; }}
         
         void UnityFSMCodeGenerator.IFsmDebugSupport.SetOnEnterBreakpoint(object _state)
         {
             var state = (State)_state;
             onEnterBreakpoints.Add(state);
             if (onBreakpointSet != null) {
-                onBreakpointSet(_state);
+                onBreakpointSet(this, _state);
             }
         }
         
@@ -310,7 +319,7 @@ namespace UnityFSMCodeGenerator.Examples
         {
             onEnterBreakpoints.Clear();
             if (onBreakpointsReset != null) {
-                onBreakpointsReset();
+                onBreakpointsReset(this);
             }
         }
         

@@ -35,6 +35,7 @@ namespace UnityFSMCodeGenerator
         string State { get; }
         List<string> AllStates { get; }
         object EnumStateFromString(string stateName);
+        string StateFromEnumState(object state);
         string GeneratedFromPrefabGUID { get; }
     }
 }

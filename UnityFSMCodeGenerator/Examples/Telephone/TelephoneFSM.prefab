@@ -62,7 +62,8 @@ MonoBehaviour:
     verbose: 0
   generatorOptions:
     _namespace: UnityFSMCodeGenerator.Examples
-    enableDebugSupport: 1
+    enableIntrospectionSupport: 1
+    enableDebugSupport: 0
     commentedOut: 0
     padding: 4
     verbose: 0

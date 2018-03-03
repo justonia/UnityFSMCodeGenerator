@@ -12,7 +12,8 @@ namespace UnityFSMCodeGenerator.Examples
 {
     // This FSM models a simple telephone that is capable of receiving calls, putting them on hold, or leaving a message.
     public class TelephoneFSM :  UnityFSMCodeGenerator.BaseFsm,
-        UnityFSMCodeGenerator.IFsmIntrospectionSupport
+        UnityFSMCodeGenerator.IFsmIntrospectionSupport,
+        UnityFSMCodeGenerator.IFsmDebugSupport
     {
         public readonly static string GeneratedFromPrefab = "Assets/UnityFSMCodeGenerator/UnityFSMCodeGenerator/Examples/Telephone/TelephoneFSM.prefab";
         public readonly static string GeneratedFromGUID = "3045bb4d728b8b5478f1e8a3ed6bab84";
@@ -279,7 +280,17 @@ namespace UnityFSMCodeGenerator.Examples
     
         
         private void DispatchOnEnter(State state)
-        {
+        {    
+            if (onEnterBreakpoints.Contains(state)) {
+                UnityEngine.Debug.LogFormat("{0}.OnEnter breakpoint triggered for state: {1}", GetType().Name, state.ToString());
+                if (onBreakpointHit != null) {
+                    onBreakpointHit(this, state);
+                }
+                // IMPORTANT: This is not the same as setting a breakpoint in Visual Studio. This method
+                // will continue executing and the editor will pause at some point later in the frame.
+                UnityEngine.Debug.Break();
+            }
+        
             switch (state) {
             case State.OffHook:
                 break;
@@ -323,14 +334,14 @@ namespace UnityFSMCodeGenerator.Examples
         
         string IFsmIntrospectionSupport.GeneratedFromPrefabGUID { get { return GeneratedFromGUID; }}
         
-        private Dictionary<State, string> debugStateLookup = new Dictionary<State, string>(new StateComparer()){
+        private Dictionary<State, string> introspectionStateLookup = new Dictionary<State, string>(new StateComparer()){
             { State.OffHook, "Off Hook" },
             { State.Ringing, "Ringing" },
             { State.Connected, "Connected" },
             { State.OnHold, "On Hold" },
             { State.DisconnectCall, "Disconnect Call" },
         };
-        private List<string> debugStringStates = new List<string>(){
+        private List<string> introspectionStringStates = new List<string>(){
             "Off Hook",
             "Ringing",
             "Connected",
@@ -345,14 +356,48 @@ namespace UnityFSMCodeGenerator.Examples
             { "Disconnect Call", State.DisconnectCall },
         };
         
-        string UnityFSMCodeGenerator.IFsmIntrospectionSupport.State { get { return context != null ? debugStateLookup[context.State] : null; }}
+        string UnityFSMCodeGenerator.IFsmIntrospectionSupport.State { get { return context != null ? introspectionStateLookup[context.State] : null; }}
         
-        List<string> UnityFSMCodeGenerator.IFsmIntrospectionSupport.AllStates { get { return debugStringStates; }}
+        string UnityFSMCodeGenerator.IFsmIntrospectionSupport.StateFromEnumState(object state) { return introspectionStateLookup[(State)state]; }
+        
+        List<string> UnityFSMCodeGenerator.IFsmIntrospectionSupport.AllStates { get { return introspectionStringStates; }}
         
         object UnityFSMCodeGenerator.IFsmIntrospectionSupport.EnumStateFromString(string stateName) { return stateNameToStateLookup[stateName]; }
         
         #endregion
     
+        
+        #region IFsmDebugSupport
+        
+        private UnityFSMCodeGenerator.BreakpointAction onBreakpointSet = null;
+        private UnityFSMCodeGenerator.BreakpointAction onBreakpointHit = null;
+        private UnityFSMCodeGenerator.BreakpointsResetAction onBreakpointsReset = null;
+        private HashSet<State> onEnterBreakpoints = new HashSet<State>(new StateComparer());
+        
+        event UnityFSMCodeGenerator.BreakpointAction UnityFSMCodeGenerator.IFsmDebugSupport.OnBreakpointSet { add { onBreakpointSet += value; } remove { onBreakpointSet -= value; }}
+        event UnityFSMCodeGenerator.BreakpointAction UnityFSMCodeGenerator.IFsmDebugSupport.OnBreakpointHit { add { onBreakpointHit += value; } remove { onBreakpointHit -= value; }}
+        event UnityFSMCodeGenerator.BreakpointsResetAction UnityFSMCodeGenerator.IFsmDebugSupport.OnBreakpointsReset { add { onBreakpointsReset += value; } remove { onBreakpointsReset -= value; }}
+        
+        int UnityFSMCodeGenerator.IFsmDebugSupport.OnEnterBreakpointCount { get { return onEnterBreakpoints.Count; }}
+        
+        void UnityFSMCodeGenerator.IFsmDebugSupport.SetOnEnterBreakpoint(object _state)
+        {
+            var state = (State)_state;
+            onEnterBreakpoints.Add(state);
+            if (onBreakpointSet != null) {
+                onBreakpointSet(this, _state);
+            }
+        }
+        
+        void UnityFSMCodeGenerator.IFsmDebugSupport.ResetBreakpoints()
+        {
+            onEnterBreakpoints.Clear();
+            if (onBreakpointsReset != null) {
+                onBreakpointsReset(this);
+            }
+        }
+        
+        #endregion
     
     }
     
