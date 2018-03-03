@@ -85,7 +85,7 @@ namespace UnityFSMCodeGenerator
                     .Replace("{{handleinternalactions}}", GetHandleInternalActions(model, varNames))
                     .Replace("{{dispatchonenter}}", GetDispatchOnEnter(model, varNames))
                     .Replace("{{dispatchonexit}}", GetDispatchOnExit(model, varNames))
-                    .Replace("{{introspectionsupport}}", GetDebugSupport(model, varNames)),
+                    .Replace("{{introspectionsupport}}", GetIntrospectionSupport(model, varNames)),
                 indentLevel));
             
             // Close namespace
@@ -111,24 +111,40 @@ namespace UnityFSMCodeGenerator
             public Dictionary<MethodInfo, string> methodInvoke;
         }
 
-        private string GetDebugSupport(FsmModel model, VarNames varNames)
+        private string GetIntrospectionSupport(FsmModel model, VarNames varNames)
         {
             if (!options.enableIntrospectionSupport) {
                 return "";
             }
 
             var sb = new System.Text.StringBuilder();
-            // Make dictionary initializer entries, e.g.: { "Hung Up", "HungUp" },
+            var sb2 = new System.Text.StringBuilder();
+            // Make two dictionary initializer entries for introspection lookup 
+            // { "Hung Up", "HungUp" },
+            // { "Hung Up", (object)State.HungUp},
+            //
             for (int i = 0; i < model.states.Count; i++) {
                 var state = model.states[i];
+                // { "Hung Up", "HungUp" },
                 PreIndent(sb, options.padding);
                 sb.Append("{ State.");
                 sb.Append(varNames.stateNameToEnum[state.name]);
                 sb.Append(", \"");
                 sb.Append(state.name);
                 sb.Append("\" },\n");
+
+                // { "Hung Up", (object)State.HungUp},
+                PreIndent(sb2, options.padding);
+                sb2.Append("{ \"");
+                sb2.Append(state.name);
+                sb2.Append("\", ");
+                sb2.Append("State.");
+                sb2.Append(varNames.stateNameToEnum[state.name]);
+                sb2.Append(" },\n");
             }
+
             var stateLookups = sb.ToString();
+            var stringToEnumState = sb2.ToString();
 
             // Make list initializer of state names
             sb = new System.Text.StringBuilder();
@@ -142,6 +158,7 @@ namespace UnityFSMCodeGenerator
 
             return PostIndent(introspectionSupportTemplate
                 .Replace("{{statelookups}}", stateLookups)
+                .Replace("{{stateenumlookup}}", stringToEnumState)
                 .Replace("{{statelist}}", sb.ToString()),
                 options.padding);
         }
@@ -561,6 +578,15 @@ public class {{cls}} :  UnityFSMCodeGenerator.BaseFsm{{implementinterfaces}}
         InternalSendEvent(queuedEvent);
     }
 {{newdefaultcontext}}
+    
+    // Convenience so you can use the State enum in a Dictionary and not worry about
+    // garbage creation via boxing: new Dictionary<State, Foo>(new StateComparer());
+    public struct StateComparer : IEqualityComparer<State>
+    {
+        public bool Equals(State x, State y) { return x == y; }
+        public int GetHashCode(State obj) { return obj.GetHashCode(); }
+    }
+
     #endregion
 
     #region Private Variables
@@ -640,20 +666,18 @@ public class {{cls}} :  UnityFSMCodeGenerator.BaseFsm{{implementinterfaces}}
 
 string IFsmIntrospectionSupport.GeneratedFromPrefabGUID { get { return GeneratedFromGUID; }}
 
-public struct StateComparer : IEqualityComparer<State>
-{
-    public bool Equals(State x, State y) { return x == y; }
-    public int GetHashCode(State obj) { return obj.GetHashCode(); }
-}
-
 private Dictionary<State, string> debugStateLookup = new Dictionary<State, string>(new StateComparer()){
 {{statelookups}}};
 private List<string> debugStringStates = new List<string>(){
 {{statelist}}};
+private Dictionary<string, State> stateNameToStateLookup = new Dictionary<string, State>(){
+{{stateenumlookup}}};
 
 string UnityFSMCodeGenerator.IFsmIntrospectionSupport.State { get { return context != null ? debugStateLookup[context.State] : null; }}
 
 List<string> UnityFSMCodeGenerator.IFsmIntrospectionSupport.AllStates { get { return debugStringStates; }}
+
+object UnityFSMCodeGenerator.IFsmIntrospectionSupport.EnumStateFromString(string stateName) { return stateNameToStateLookup[stateName]; }
 
 #endregion";
 

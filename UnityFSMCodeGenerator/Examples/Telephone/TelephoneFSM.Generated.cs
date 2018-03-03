@@ -87,6 +87,15 @@ namespace UnityFSMCodeGenerator.Examples
             };
         }
     
+        
+        // Convenience so you can use the State enum in a Dictionary and not worry about
+        // garbage creation via boxing: new Dictionary<State, Foo>(new StateComparer());
+        public struct StateComparer : IEqualityComparer<State>
+        {
+            public bool Equals(State x, State y) { return x == y; }
+            public int GetHashCode(State obj) { return obj.GetHashCode(); }
+        }
+    
         #endregion
     
         #region Private Variables
@@ -313,12 +322,6 @@ namespace UnityFSMCodeGenerator.Examples
         
         string IFsmIntrospectionSupport.GeneratedFromPrefabGUID { get { return GeneratedFromGUID; }}
         
-        public struct StateComparer : IEqualityComparer<State>
-        {
-            public bool Equals(State x, State y) { return x == y; }
-            public int GetHashCode(State obj) { return obj.GetHashCode(); }
-        }
-        
         private Dictionary<State, string> debugStateLookup = new Dictionary<State, string>(new StateComparer()){
             { State.OffHook, "Off Hook" },
             { State.Ringing, "Ringing" },
@@ -333,10 +336,19 @@ namespace UnityFSMCodeGenerator.Examples
             "On Hold",
             "Disconnect Call",
         };
+        private Dictionary<string, State> stateNameToStateLookup = new Dictionary<string, State>(){
+            { "Off Hook", State.OffHook },
+            { "Ringing", State.Ringing },
+            { "Connected", State.Connected },
+            { "On Hold", State.OnHold },
+            { "Disconnect Call", State.DisconnectCall },
+        };
         
         string UnityFSMCodeGenerator.IFsmIntrospectionSupport.State { get { return context != null ? debugStateLookup[context.State] : null; }}
         
         List<string> UnityFSMCodeGenerator.IFsmIntrospectionSupport.AllStates { get { return debugStringStates; }}
+        
+        object UnityFSMCodeGenerator.IFsmIntrospectionSupport.EnumStateFromString(string stateName) { return stateNameToStateLookup[stateName]; }
         
         #endregion
     
