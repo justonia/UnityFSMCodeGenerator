@@ -182,6 +182,7 @@ namespace UnityFSMCodeGenerator
         {
             while (true) {
                 var currentFsmState = pair.fsmIntrospection.State;
+                isDirty = true;
                 
                 #if PLAYMAKER
                 if (pair.view != null) { 
