@@ -121,8 +121,8 @@ Still needs much more documentation, unit tests, support for IgnoreEventAction, 
 
 ## Extras
 
-There is a `FsmViewer` component you can stick on a GameObject and link up to MonoBehaviours containing the generated FSMs (which are pure classes, not MonoBehaviours). When linked, you get a debug information on what is going on within each linked state machine.
+There is a `FsmViewer` component you can add to a GameObject that will automatically discover and show information for any FSMs on that GameObject. All you need to do is have your MonoBehaviour inherit `IHaveBaseFsms` and FsmViewer will take care of the rest. For an FSM to be found it must also have been generated with 'Enable Introspection Support' in the PlayMakerCodeGenerator compiler options.
 
-Even better, if you have PlayMaker installed a "Graph View" option shows up. When pressed, an instance of the `PlayMakerFSM` used to generate the code FSM is viewable within the PlayMaker UI and will update to show the state the code FSM is in.
+If you have PlayMaker installed, FsmViewer will even locate the original prefab the generated FSM was made from and let you use the PlayMaker UI to visually view the state of the FSM!
 
 ![PlayMaker graph view](Docs/fsmviewer_1_v01.PNG)
