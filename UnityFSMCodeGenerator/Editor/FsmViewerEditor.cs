@@ -77,11 +77,11 @@ namespace UnityFSMCodeGenerator.Editor
 
             var link = target as FsmViewer;
 
-            if (!Application.isPlaying) {
+            if (!Application.isPlaying || link.Tracking == null) {
                 return;
             }
 
-            foreach (var pair in link.tracking) {
+            foreach (var pair in link.Tracking) {
                 if (pair.targetFsm == null || pair.fsmOwner == null) {
                     continue;
                 }

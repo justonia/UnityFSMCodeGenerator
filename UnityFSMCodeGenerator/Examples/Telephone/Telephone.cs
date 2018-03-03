@@ -58,10 +58,12 @@ namespace UnityFSMCodeGenerator.Examples
         private TelephoneFSM fsm;
         private TelephoneFSM.IContext context;
         private TelephoneVolumeFSM volumeFsm;
+        private UnityFSMCodeGenerator.BaseFsm[] fsms;
         private float volume;
         private Coroutine ringing;
         private Coroutine pulsing;
         private bool listenToggleChange = true;
+        private Coroutine volumeChange;
 
         [Header("Status Info")]
         public Text activeState;
@@ -87,7 +89,7 @@ namespace UnityFSMCodeGenerator.Examples
         public Button volumeDownButton;
         public Text volumePercent;
 
-        UnityFSMCodeGenerator.BaseFsm UnityFSMCodeGenerator.IHaveBaseFsm.BaseFsm { get { return fsm; }}
+        UnityFSMCodeGenerator.BaseFsm[] UnityFSMCodeGenerator.IHaveBaseFsm.BaseFsms { get { return fsms; }}
 
         private void Awake()
         {
@@ -97,6 +99,8 @@ namespace UnityFSMCodeGenerator.Examples
 
             volumeFsm = new TelephoneVolumeFSM();
             volumeFsm.Bind(TelephoneVolumeFSM.NewDefaultContext(this));
+
+            fsms = new UnityFSMCodeGenerator.BaseFsm[]{fsm, volumeFsm};
 
             volume = startVolume;
             ringer.volume = startVolume;
@@ -140,8 +144,8 @@ namespace UnityFSMCodeGenerator.Examples
                 break;
             }
 
-            volumeUpButton.interactable = volume < 1f;
-            volumeDownButton.interactable = volume > 0f;
+            volumeUpButton.interactable = volumeChange == null && volume < 1f;
+            volumeDownButton.interactable = volumeChange == null && volume > 0f;
         }
 
         public void OnCallPhoneClicked()
@@ -250,8 +254,9 @@ namespace UnityFSMCodeGenerator.Examples
             ringer.volume = volume;
             voice.volume = volume;
             volumePercent.text = ((int)(volume * 100f)).ToString() + "%";
-            
-            volumeFsm.SendEvent(TelephoneVolumeFSM.Event.VolumeChanged);
+
+            // Add arbitrary delay so it's visible in inspector
+            volumeChange = StartCoroutine(SendDelayedVolumeEvent(0.5f, TelephoneVolumeFSM.Event.VolumeChanged));
         }
 
         void IAudioControl.VolumeDown()
@@ -261,7 +266,15 @@ namespace UnityFSMCodeGenerator.Examples
             voice.volume = volume;
             volumePercent.text = ((int)(volume * 100f)).ToString() + "%";
             
+            // Add arbitrary delay so it's visible in inspector
+            volumeChange = StartCoroutine(SendDelayedVolumeEvent(0.5f, TelephoneVolumeFSM.Event.VolumeChanged));
+        }
+
+        private IEnumerator SendDelayedVolumeEvent(float delay, TelephoneVolumeFSM.Event evt)
+        {
+            yield return new WaitForSeconds(delay);
             volumeFsm.SendEvent(TelephoneVolumeFSM.Event.VolumeChanged);
+            volumeChange = null;
         }
 
         #endregion

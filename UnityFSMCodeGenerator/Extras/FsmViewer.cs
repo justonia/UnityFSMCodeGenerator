@@ -28,6 +28,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace UnityFSMCodeGenerator
 {
@@ -38,20 +41,27 @@ namespace UnityFSMCodeGenerator
     public class FsmViewer : MonoBehaviour
     {
         private bool isDirty;
+        private List<TrackingPair> tracking = new List<TrackingPair>();
+
+        public PlayMakerCodeGenerator[] fsmPrefabs;
+
+        private void Awake()
+        {
+        }
 
         [System.Serializable]
         public class TrackingPair
         {
             public PlayMakerCodeGenerator fsmPrefab;
             public MonoBehaviour fsmOwner;
-            [NonSerialized] public BaseFsm targetFsm;
-            [NonSerialized] public IFsmDebugSupport fsmDebug;
+            public BaseFsm targetFsm;
+            public IFsmDebugSupport fsmDebug;
             #if PLAYMAKER
             [NonSerialized] public PlayMakerFSM view;
             #endif
         }
 
-        public TrackingPair[] tracking;
+        public List<TrackingPair> Tracking { get { return tracking; }}
 
         public delegate void RepaintAction();
         public event RepaintAction WantRepaint;
@@ -60,11 +70,53 @@ namespace UnityFSMCodeGenerator
         {
             // Don't want this crap to run unless we're in the editor
             #if UNITY_EDITOR
+            tracking.Clear();
+            DiscoverTrackingPairs();
+
             foreach (var pair in tracking) {
                 if (pair.fsmOwner == null || !(pair.fsmOwner is IHaveBaseFsm)) {
                     continue;
                 }
                 StartCoroutine(Track(pair));
+            }
+            #endif
+        }
+
+        private void DiscoverTrackingPairs()
+        {
+            #if UNITY_EDITOR
+            // Discover all FSMs on this game object
+            var owners = GetComponents<MonoBehaviour>().Where(b => b is IHaveBaseFsm).ToList();
+            foreach (var owner in owners) {
+                foreach (var fsm in (owner as IHaveBaseFsm).BaseFsms) {
+                    var pair = new TrackingPair{
+                        fsmOwner = owner,
+                        targetFsm = fsm,
+                        fsmDebug = fsm as IFsmDebugSupport,
+                    };
+
+                    if (pair.fsmDebug == null) {
+                        continue;
+                    }
+
+                    var guid = pair.fsmDebug.GeneratedFromPrefabGUID;
+                    if (!string.IsNullOrEmpty(guid)) {
+                        foreach (var prefab in fsmPrefabs) {
+                            if (PrefabUtility.GetPrefabType(prefab) != PrefabType.Prefab) {
+                                continue;
+                            }
+
+                            var path = AssetDatabase.GetAssetPath(prefab);
+                            var prefabGuid = AssetDatabase.AssetPathToGUID(path);
+                            if (prefabGuid == guid) {
+                                pair.fsmPrefab = prefab;
+                                break;
+                            }
+                        }
+                    }
+
+                    tracking.Add(pair);
+                }
             }
             #endif
         }
@@ -93,20 +145,6 @@ namespace UnityFSMCodeGenerator
 
         private IEnumerator Track(TrackingPair pair)
         {
-            var haveFsm = pair.fsmOwner as IHaveBaseFsm;
-            
-            pair.targetFsm = haveFsm.BaseFsm;
-            if (pair.targetFsm == null) {
-                yield return new WaitUntil(() => haveFsm.BaseFsm != null);
-                pair.targetFsm = haveFsm.BaseFsm;
-            }
-
-            pair.fsmDebug = pair.targetFsm as IFsmDebugSupport;
-            if (pair.fsmDebug == null) {
-                pair.targetFsm = null;
-                yield break;
-            }
-
             while (true) {
                 var currentFsmState = pair.fsmDebug.State;
                 isDirty = true;

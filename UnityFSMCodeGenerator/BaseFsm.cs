@@ -38,11 +38,12 @@ namespace UnityFSMCodeGenerator
         // the generator trimmed and turned them into enum values.
         string State { get; }
         List<string> AllStates { get; }
+        string GeneratedFromPrefabGUID { get; }
     }
 
     public interface IHaveBaseFsm
     {
-        BaseFsm BaseFsm { get; }
+        BaseFsm[] BaseFsms { get; }
     }
 
     // Currently exists as a marker class to be able to find all implementations

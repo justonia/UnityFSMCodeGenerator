@@ -512,7 +512,7 @@ public class {{cls}} :  UnityFSMCodeGenerator.BaseFsm{{implementinterfaces}}
 {
     public readonly static string GeneratedFromPrefab = ""{{genprefab}}"";
     public readonly static string GeneratedFromGUID = ""{{genguid}}"";
-
+    
     public enum State
     {
 {{states}}
@@ -637,6 +637,8 @@ public class {{cls}} :  UnityFSMCodeGenerator.BaseFsm{{implementinterfaces}}
 
     private readonly string debugSupportTemplate = @"
 #region IFsmDebugSupport
+
+string IFsmDebugSupport.GeneratedFromPrefabGUID { get { return GeneratedFromGUID; }}
 
 public struct StateComparer : IEqualityComparer<State>
 {

@@ -15,7 +15,7 @@ namespace UnityFSMCodeGenerator.Examples
     {
         public readonly static string GeneratedFromPrefab = "Assets/UnityFSMCodeGenerator/UnityFSMCodeGenerator/Examples/Telephone/TelephoneVolumeFSM.prefab";
         public readonly static string GeneratedFromGUID = "b81d0d14e94579c4c85b7b09730d97dd";
-    
+        
         public enum State
         {
             WaitForEvent,
@@ -242,6 +242,8 @@ namespace UnityFSMCodeGenerator.Examples
         #endregion
         
         #region IFsmDebugSupport
+        
+        string IFsmDebugSupport.GeneratedFromPrefabGUID { get { return GeneratedFromGUID; }}
         
         public struct StateComparer : IEqualityComparer<State>
         {
