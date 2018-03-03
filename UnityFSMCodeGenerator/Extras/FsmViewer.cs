@@ -82,7 +82,12 @@ namespace UnityFSMCodeGenerator
             var owners = GetComponents<MonoBehaviour>().Where(b => b is IHaveBaseFsm).ToList();
 
             foreach (var owner in owners) {
-                foreach (var fsm in (owner as IHaveBaseFsm).BaseFsms) {
+                var fsms = (owner as IHaveBaseFsm).BaseFsms;
+                if (fsms == null) {
+                    continue;
+                }
+
+                foreach (var fsm in fsms) {
                     var pair = new TrackingPair{
                         fsmOwner = owner,
                         targetFsm = fsm,

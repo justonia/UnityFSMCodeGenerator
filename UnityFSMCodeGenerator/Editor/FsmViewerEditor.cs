@@ -48,12 +48,14 @@ namespace UnityFSMCodeGenerator.Editor
                     return;
                 }
 
+                #if PLAYMAKER
                 // Prevent being stuck in lock mode on a runtime FSM exiting play mode
                 var activeFsm =  HutongGames.PlayMakerEditor.FsmEditor.SelectedFsmComponent;
                 if (activeFsm != null && activeFsm.GetComponent<FsmViewerPrefabInstance>() != null) {
                     HutongGames.PlayMakerEditor.FsmEditorSettings.LockGraphView = false;
                     HutongGames.PlayMakerEditor.FsmEditor.SelectNone();
                 }
+                #endif
             };
         }
 
