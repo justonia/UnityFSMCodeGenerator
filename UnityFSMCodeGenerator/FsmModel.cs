@@ -52,6 +52,7 @@ namespace UnityFSMCodeGenerator
         public List<FsmOnEnterExitModel> onExit;
         public List<FsmTransitionModel> transitions;
         public List<FsmInternalActionModel> internalActions;
+        public List<FsmEventModel> ignoreEvents;
     }
 
     public class FsmOnEnterExitModel

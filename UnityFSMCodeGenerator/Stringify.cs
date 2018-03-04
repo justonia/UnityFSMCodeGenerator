@@ -100,6 +100,14 @@ namespace UnityFSMCodeGenerator
                 sb.Append(onExit._delegate.delegateDisplayName);
                 sb.Append("\n");
             }
+
+            foreach (var ignore in state.ignoreEvents) {
+                ToDebugStringIndent(sb, 4);
+                sb.Append("e[ ");
+                sb.Append(ignore.name);
+                sb.Append(" ] -> Ignore");
+                sb.Append("\n");
+            }
         }
 
         private static void ToDebugStringAppendTransition(System.Text.StringBuilder sb, FsmTransitionModel transition, int indent)

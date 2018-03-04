@@ -22,3 +22,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#if PLAYMAKER
+using UnityEngine;
+using System.Collections;
+using HutongGames.PlayMaker;
+using HutongGames.PlayMaker.Actions;
+using TooltipAttribute = HutongGames.PlayMaker.TooltipAttribute;
+
+namespace UnityFSMCodeGenerator.Actions
+{
+    [ActionCategory("Unity FSM Code Generator")]
+    public class IgnoreEventAction : BaseDelegateAction
+    {
+        public FsmString _event;
+    }
+}
+
+#endif

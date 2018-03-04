@@ -114,12 +114,14 @@ MonoBehaviour:
         linkConstraint: 0
         colorIndex: 0
       actionData:
-        actionNames: []
-        customNames: []
-        actionEnabled: 
-        actionIsOpen: 
-        actionStartIndex: 
-        actionHashCodes: 
+        actionNames:
+        - UnityFSMCodeGenerator.Actions.IgnoreEventAction
+        customNames:
+        - 
+        actionEnabled: 01
+        actionIsOpen: 01
+        actionStartIndex: 00000000
+        actionHashCodes: c8ed5705
         unityObjectParams: []
         fsmGameObjectParams: []
         fsmOwnerDefaultParams: []
@@ -129,7 +131,25 @@ MonoBehaviour:
         fsmEventTargetParams: []
         fsmPropertyParams: []
         layoutOptionParams: []
-        fsmStringParams: []
+        fsmStringParams:
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: Volume Changed
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 
         fsmObjectParams: []
         fsmVarParams: []
         fsmArrayParams: []
@@ -148,17 +168,20 @@ MonoBehaviour:
         arrayParamTypes: []
         customTypeSizes: 
         customTypeNames: []
-        paramDataType: 
-        paramName: []
-        paramDataPos: 
-        paramByteDataSize: 
+        paramDataType: 120000001200000012000000
+        paramName:
+        - _event
+        - delegateInterface
+        - methodSignature
+        paramDataPos: 000000000100000002000000
+        paramByteDataSize: 000000000000000000000000
     - name: Volume Up
       description: 
       colorIndex: 0
       position:
         serializedVersion: 2
-        x: 54
-        y: 185
+        x: 57
+        y: 186
         width: 140
         height: 32
       isBreakpoint: 0
@@ -176,12 +199,16 @@ MonoBehaviour:
       actionData:
         actionNames:
         - UnityFSMCodeGenerator.Actions.OnEntryAction
+        - UnityFSMCodeGenerator.Actions.IgnoreEventAction
+        - UnityFSMCodeGenerator.Actions.IgnoreEventAction
         customNames:
         - 
-        actionEnabled: 01
-        actionIsOpen: 01
-        actionStartIndex: 00000000
-        actionHashCodes: a4b08a01
+        - 
+        - 
+        actionEnabled: 010101
+        actionIsOpen: 010101
+        actionStartIndex: 000000000200000005000000
+        actionHashCodes: a4b08a01c8ed5705c8ed5705
         unityObjectParams: []
         fsmGameObjectParams: []
         fsmOwnerDefaultParams: []
@@ -204,6 +231,42 @@ MonoBehaviour:
           showInInspector: 0
           networkSync: 0
           value: void VolumeUp ()
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: Volume Up
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: Volume Down
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 
         fsmObjectParams: []
         fsmVarParams: []
         fsmArrayParams: []
@@ -222,12 +285,18 @@ MonoBehaviour:
         arrayParamTypes: []
         customTypeSizes: 
         customTypeNames: []
-        paramDataType: 1200000012000000
+        paramDataType: 1200000012000000120000001200000012000000120000001200000012000000
         paramName:
         - delegateInterface
         - methodSignature
-        paramDataPos: 0000000001000000
-        paramByteDataSize: 0000000000000000
+        - _event
+        - delegateInterface
+        - methodSignature
+        - _event
+        - delegateInterface
+        - methodSignature
+        paramDataPos: 0000000001000000020000000300000004000000050000000600000007000000
+        paramByteDataSize: 0000000000000000000000000000000000000000000000000000000000000000
     - name: Volume Down
       description: 
       colorIndex: 0
@@ -252,12 +321,16 @@ MonoBehaviour:
       actionData:
         actionNames:
         - UnityFSMCodeGenerator.Actions.OnEntryAction
+        - UnityFSMCodeGenerator.Actions.IgnoreEventAction
+        - UnityFSMCodeGenerator.Actions.IgnoreEventAction
         customNames:
         - 
-        actionEnabled: 01
-        actionIsOpen: 01
-        actionStartIndex: 00000000
-        actionHashCodes: a4b08a01
+        - 
+        - 
+        actionEnabled: 010101
+        actionIsOpen: 010101
+        actionStartIndex: 000000000200000005000000
+        actionHashCodes: a4b08a01c8ed5705c8ed5705
         unityObjectParams: []
         fsmGameObjectParams: []
         fsmOwnerDefaultParams: []
@@ -280,6 +353,42 @@ MonoBehaviour:
           showInInspector: 0
           networkSync: 0
           value: void VolumeDown ()
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: Volume Up
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: Volume Down
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 
         fsmObjectParams: []
         fsmVarParams: []
         fsmArrayParams: []
@@ -298,12 +407,18 @@ MonoBehaviour:
         arrayParamTypes: []
         customTypeSizes: 
         customTypeNames: []
-        paramDataType: 1200000012000000
+        paramDataType: 1200000012000000120000001200000012000000120000001200000012000000
         paramName:
         - delegateInterface
         - methodSignature
-        paramDataPos: 0000000001000000
-        paramByteDataSize: 0000000000000000
+        - _event
+        - delegateInterface
+        - methodSignature
+        - _event
+        - delegateInterface
+        - methodSignature
+        paramDataPos: 0000000001000000020000000300000004000000050000000600000007000000
+        paramByteDataSize: 0000000000000000000000000000000000000000000000000000000000000000
     events:
     - name: Volume Changed
       isSystemEvent: 0
@@ -334,7 +449,10 @@ MonoBehaviour:
       categories:
       - 
       variableCategoryIDs: 
-    description: This FSM controls the volume of the phone.
+    description: Controls the volume of the phone. It demonstrates the use of the
+      IgnoreEventAction since in the UI you are able to spam the volume up/down buttons
+      and send continuous events to the FSM. Telephone.cs adds an artificial delay
+      to changing the volume to allow this behavior.
     docUrl: 
     showStateLabel: 1
     maxLoopCount: 0
@@ -343,7 +461,7 @@ MonoBehaviour:
     locked: 0
     manualUpdate: 0
     keepDelayedEventsOnStateExit: 0
-    preprocessed: 1
+    preprocessed: 0
     ExposedEvents: []
     RestartOnEnable: 1
     EnableDebugFlow: 0

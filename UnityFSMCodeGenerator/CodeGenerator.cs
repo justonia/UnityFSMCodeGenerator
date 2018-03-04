@@ -81,8 +81,9 @@ namespace UnityFSMCodeGenerator
                     .Replace("{{states}}", GetStates(model))
                     .Replace("{{events}}", GetEvents(model))
                     .Replace("{{icontext}}", GetIContext(model, varNames))
-                    .Replace("{{singleInternalSendEvent}}", GetSingleInternalSendEvent(model, varNames))
+                    .Replace("{{singleinternalsendEvent}}", GetSingleInternalSendEvent(model, varNames))
                     .Replace("{{handleinternalactions}}", GetHandleInternalActions(model, varNames))
+                    .Replace("{{checkignoreevents}}", GetIgnoreEvents(model, varNames))
                     .Replace("{{dispatchonenter}}", GetDispatchOnEnter(model, varNames))
                     .Replace("{{dispatchonexit}}", GetDispatchOnExit(model, varNames))
                     .Replace("{{introspectionsupport}}", GetIntrospectionSupport(model, varNames))
@@ -274,12 +275,54 @@ namespace UnityFSMCodeGenerator
                 sb.Append(sendInternalEventStateCaseTemplate
                     .Replace("{{name}}", varNames.stateNameToEnum[state.name])
                     .Replace("{{transitions}}", GetTransitions(model, state, varNames, out needDefaultBreak))
-                    .Replace("{{defaultbreak}}", needDefaultBreak ? PostIndent(defaultBreakInternalActionsTemplate, options.padding * 2, false) : ""));
+                    .Replace("{{defaultbreak}}", needDefaultBreak ? PostIndent(defaultBreakEventHandlerTemplate, options.padding * 2, false) : ""));
             }
 
             return PostIndent(sendInternalEventBaseTemplate
                 .Replace("{{states}}", sb.ToString()), 
                 options.padding);
+        }
+
+        private string GetIgnoreEvents(FsmModel model, VarNames varNames)
+        {
+            // Build state switch
+            var sb = new System.Text.StringBuilder();
+            int count = 0;
+            foreach (var state in model.states) {
+                if (state.ignoreEvents.Count == 0) {
+                    continue;
+                }
+
+                count++;
+
+                sb.Append(ignoreEventsStateCaseTemplate
+                    .Replace("{{name}}", varNames.stateNameToEnum[state.name])
+                    .Replace("{{ignoreevents}}", GetStateIgnoreEvents(model, state, varNames))
+                    .Replace("{{defaultbreak}}", ""));
+            }
+
+            if (count == 0) {
+                return PostIndent(ignoreEventsNoneTemplate, options.padding);
+            }
+
+            return PostIndent(ignoreEventsTemplate
+                .Replace("{{states}}", sb.ToString()), 
+                options.padding);
+        }
+
+        private string GetStateIgnoreEvents(FsmModel model, FsmStateModel state, VarNames varNames)
+        {
+            var sb = new System.Text.StringBuilder();
+            int count = 0;
+            foreach (var ignore in state.ignoreEvents) {
+                count++;
+                            
+                sb.Append(PostIndent(ignoreEventTrue
+                    .Replace("{{event}}", varNames.eventNameToEnum[ignore.name]),
+                    options.padding * 2, false));
+            }
+
+            return sb.ToString();
         }
 
         private string GetHandleInternalActions(FsmModel model, VarNames varNames)
@@ -303,11 +346,10 @@ namespace UnityFSMCodeGenerator
                     continue;
                 }
 
-                bool needDefaultBreak = false;
                 sb.Append(internalActionsStateCaseTemplate
                     .Replace("{{name}}", varNames.stateNameToEnum[state.name])
-                    .Replace("{{internalactions}}", GetStateInternalActions(model, state, varNames, out needDefaultBreak))
-                    .Replace("{{defaultbreak}}", needDefaultBreak ? PostIndent(defaultBreakTemplate, options.padding * 2, false) : ""));
+                    .Replace("{{internalactions}}", GetStateInternalActions(model, state, varNames))
+                    .Replace("{{defaultbreak}}", ""));
             }
 
             return PostIndent(internalActionsTemplate
@@ -315,7 +357,7 @@ namespace UnityFSMCodeGenerator
                 options.padding);
         }
 
-        private string GetStateInternalActions(FsmModel model, FsmStateModel state, VarNames varNames, out bool needDefaultBreak)
+        private string GetStateInternalActions(FsmModel model, FsmStateModel state, VarNames varNames)
         {
             var sb = new System.Text.StringBuilder();
             int count = 0;
@@ -327,8 +369,6 @@ namespace UnityFSMCodeGenerator
                     .Replace("{{methodcall}}", MakeMethodCall(action._delegate, varNames)),
                     options.padding * 2, false));
             }
-
-            needDefaultBreak = count != model.events.Count;
 
             return sb.ToString();
         }
@@ -669,9 +709,11 @@ public class {{cls}} :  UnityFSMCodeGenerator.BaseFsm{{implementinterfaces}}
         }
     }
 
-{{singleInternalSendEvent}}
+{{singleinternalsendEvent}}
     
 {{handleinternalactions}}
+
+{{checkignoreevents}}
 
     private void SwitchState(State from, State to)
     {
@@ -755,7 +797,7 @@ if (onEnterBreakpoints.Contains(state)) {
     if (onBreakpointHit != null) {
         onBreakpointHit(this, state);
     }
-    // IMPORTANT: This is not the same as setting a breakpoint in Visual Studio. This method
+    // NOTE: This is not the same as setting a breakpoint in Visual Studio. This method
     // will continue executing and the editor will pause at some point later in the frame.
     UnityEngine.Debug.Break();
 }";
@@ -784,13 +826,15 @@ case Event.{{event}}:
     }
     break;";
 
+    /*
     private readonly string defaultBreakTemplate = @"
 default:
     break;";
+    */
 
-    private readonly string defaultBreakInternalActionsTemplate = @"
+    private readonly string defaultBreakEventHandlerTemplate = @"
 default:
-    if (!HandleInternalActions(from, _event)) {
+    if (!HandleInternalActions(from, _event) && !IsEventIgnored(from, _event)) {
         throw new System.Exception(string.Format(""Unhandled event '{0}' in state '{1}'"", _event.ToString(), context.State.ToString()));
     }
     break;";
@@ -859,6 +903,35 @@ public static IContext NewDefaultContext(
         {{args}}
     };
 }";
+    
+    private readonly string ignoreEventsTemplate = @"
+private bool IsEventIgnored(State state, Event _event)
+{
+    var ignored = false;
+
+    switch (state) {{{states}}
+    }
+
+    return ignored;
+}";
+    
+    private readonly string ignoreEventsNoneTemplate = @"
+private bool IsEventIgnored(State state, Event _event)
+{
+    return false;
+}";
+
+    private readonly string ignoreEventsStateCaseTemplate = @"
+    case State.{{name}}:
+        switch (_event) {{{ignoreevents}}{{defaultbreak}}
+        }
+        break;
+";
+
+    private readonly string ignoreEventTrue = @"
+case Event.{{event}}:
+    ignored = true;
+    break;";
 
     }
 }

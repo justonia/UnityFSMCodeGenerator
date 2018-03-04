@@ -63,7 +63,6 @@ namespace UnityFSMCodeGenerator.Examples
         private Coroutine ringing;
         private Coroutine pulsing;
         private bool listenToggleChange = true;
-        private Coroutine volumeChange;
 
         [Header("Status Info")]
         public Text activeState;
@@ -144,8 +143,8 @@ namespace UnityFSMCodeGenerator.Examples
                 break;
             }
 
-            volumeUpButton.interactable = volumeChange == null && volume < 1f;
-            volumeDownButton.interactable = volumeChange == null && volume > 0f;
+            volumeUpButton.interactable = volume < 1f;
+            volumeDownButton.interactable = volume > 0f;
         }
 
         public void OnCallPhoneClicked()
@@ -161,6 +160,11 @@ namespace UnityFSMCodeGenerator.Examples
         public void OnAnswerCallClicked()
         {
             fsm.SendEvent(TelephoneFSM.Event.CallConnected);
+        }
+
+        public void OnReceivedTextMessage()
+        {
+            fsm.SendEvent(TelephoneFSM.Event.ReceivedText);
         }
 
         public void OnHoldChanged()
@@ -255,8 +259,8 @@ namespace UnityFSMCodeGenerator.Examples
             voice.volume = volume;
             volumePercent.text = ((int)(volume * 100f)).ToString() + "%";
 
-            // Add arbitrary delay so it's visible in inspector
-            volumeChange = StartCoroutine(SendDelayedVolumeEvent(0.5f, TelephoneVolumeFSM.Event.VolumeChanged));
+            // Add arbitrary delay so in the example you can spam the event to demonstrate IgnoreEventAction
+            StartCoroutine(SendDelayedVolumeEvent(0.5f, TelephoneVolumeFSM.Event.VolumeChanged));
         }
 
         void IAudioControl.VolumeDown()
@@ -266,15 +270,14 @@ namespace UnityFSMCodeGenerator.Examples
             voice.volume = volume;
             volumePercent.text = ((int)(volume * 100f)).ToString() + "%";
             
-            // Add arbitrary delay so it's visible in inspector
-            volumeChange = StartCoroutine(SendDelayedVolumeEvent(0.5f, TelephoneVolumeFSM.Event.VolumeChanged));
+            // Add arbitrary delay so in the example you can spam the event to demonstrate IgnoreEventAction
+            StartCoroutine(SendDelayedVolumeEvent(0.5f, TelephoneVolumeFSM.Event.VolumeChanged));
         }
 
         private IEnumerator SendDelayedVolumeEvent(float delay, TelephoneVolumeFSM.Event evt)
         {
             yield return new WaitForSeconds(delay);
             volumeFsm.SendEvent(TelephoneVolumeFSM.Event.VolumeChanged);
-            volumeChange = null;
         }
 
         #endregion

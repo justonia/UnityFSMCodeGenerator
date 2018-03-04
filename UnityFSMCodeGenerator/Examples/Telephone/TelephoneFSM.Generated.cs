@@ -37,6 +37,7 @@ namespace UnityFSMCodeGenerator.Examples
             LeftMessage,
             OffHold,
             OnHold,
+            ReceivedText,
         }
     
         public interface IContext : UnityFSMCodeGenerator.IFsmContext
@@ -166,7 +167,7 @@ namespace UnityFSMCodeGenerator.Examples
                     }
                     break;        
                 default:
-                    if (!HandleInternalActions(from, _event)) {
+                    if (!HandleInternalActions(from, _event) && !IsEventIgnored(from, _event)) {
                         throw new System.Exception(string.Format("Unhandled event '{0}' in state '{1}'", _event.ToString(), context.State.ToString()));
                     }
                     break;
@@ -186,7 +187,7 @@ namespace UnityFSMCodeGenerator.Examples
                     }
                     break;        
                 default:
-                    if (!HandleInternalActions(from, _event)) {
+                    if (!HandleInternalActions(from, _event) && !IsEventIgnored(from, _event)) {
                         throw new System.Exception(string.Format("Unhandled event '{0}' in state '{1}'", _event.ToString(), context.State.ToString()));
                     }
                     break;
@@ -211,7 +212,7 @@ namespace UnityFSMCodeGenerator.Examples
                     }
                     break;        
                 default:
-                    if (!HandleInternalActions(from, _event)) {
+                    if (!HandleInternalActions(from, _event) && !IsEventIgnored(from, _event)) {
                         throw new System.Exception(string.Format("Unhandled event '{0}' in state '{1}'", _event.ToString(), context.State.ToString()));
                     }
                     break;
@@ -231,7 +232,7 @@ namespace UnityFSMCodeGenerator.Examples
                     }
                     break;        
                 default:
-                    if (!HandleInternalActions(from, _event)) {
+                    if (!HandleInternalActions(from, _event) && !IsEventIgnored(from, _event)) {
                         throw new System.Exception(string.Format("Unhandled event '{0}' in state '{1}'", _event.ToString(), context.State.ToString()));
                     }
                     break;
@@ -246,7 +247,7 @@ namespace UnityFSMCodeGenerator.Examples
                     }
                     break;        
                 default:
-                    if (!HandleInternalActions(from, _event)) {
+                    if (!HandleInternalActions(from, _event) && !IsEventIgnored(from, _event)) {
                         throw new System.Exception(string.Format("Unhandled event '{0}' in state '{1}'", _event.ToString(), context.State.ToString()));
                     }
                     break;
@@ -260,8 +261,67 @@ namespace UnityFSMCodeGenerator.Examples
         
         private bool HandleInternalActions(State state, Event _event)
         {
-            // no states have internal actions, intentionally empty
-            return false;
+            var handled = false;
+        
+            switch (state) {
+            case State.OffHook:
+                switch (_event) {        
+                case Event.ReceivedText:
+                    context.Haptics.Pulse();
+                    handled = true;
+                    break;
+                }
+                break;
+        
+            case State.Connected:
+                switch (_event) {        
+                case Event.ReceivedText:
+                    context.Haptics.Pulse();
+                    handled = true;
+                    break;
+                }
+                break;
+        
+            case State.OnHold:
+                switch (_event) {        
+                case Event.ReceivedText:
+                    context.Haptics.Pulse();
+                    handled = true;
+                    break;
+                }
+                break;
+        
+            }
+        
+            return handled;
+        }
+    
+    
+        
+        private bool IsEventIgnored(State state, Event _event)
+        {
+            var ignored = false;
+        
+            switch (state) {
+            case State.Ringing:
+                switch (_event) {        
+                case Event.ReceivedText:
+                    ignored = true;
+                    break;
+                }
+                break;
+        
+            case State.DisconnectCall:
+                switch (_event) {        
+                case Event.ReceivedText:
+                    ignored = true;
+                    break;
+                }
+                break;
+        
+            }
+        
+            return ignored;
         }
     
     
@@ -286,7 +346,7 @@ namespace UnityFSMCodeGenerator.Examples
                 if (onBreakpointHit != null) {
                     onBreakpointHit(this, state);
                 }
-                // IMPORTANT: This is not the same as setting a breakpoint in Visual Studio. This method
+                // NOTE: This is not the same as setting a breakpoint in Visual Studio. This method
                 // will continue executing and the editor will pause at some point later in the frame.
                 UnityEngine.Debug.Break();
             }

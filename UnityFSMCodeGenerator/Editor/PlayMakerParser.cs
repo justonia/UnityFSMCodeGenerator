@@ -145,12 +145,37 @@ namespace UnityFSMCodeGenerator.Editor
                     stateModel.transitions.Add(transitionModel);
                 }
 
-                // Gather on enter
+                // Gather on enter/exit
                 stateModel.onEnter = new List<FsmOnEnterExitModel>();
                 stateModel.onExit = new List<FsmOnEnterExitModel>();
 
                 foreach (var action in state.Actions) {
                     AddEnterExitEvent(action as Actions.BaseDelegateAction, stateModel);
+                }
+
+                // Gather ignore events
+                var toIgnore = new HashSet<string>(); 
+                stateModel.ignoreEvents = new List<FsmEventModel>();
+                foreach (var action in state.Actions) {
+                    var ignore = action as Actions.IgnoreEventAction;
+                    if (ignore == null || ignore._event == null || string.IsNullOrEmpty(ignore._event.Value) || toIgnore.Contains(ignore._event.Value)) {
+                        continue;
+                    }
+
+                    // Sanity check, this event should not be used in a transition or an internal action
+                    var evt = ignore._event.Value;
+                    foreach (var internalAction in stateModel.internalActions) {
+                        if (internalAction.evt.name == evt) {
+                            throw new System.Exception(string.Format("Ignore action event in '{0}' has event '{1}' that is used by an internal action", state.Name, evt));
+                        }
+                    }
+                    foreach (var transition in stateModel.transitions) {
+                        if (transition.evt.name == evt) {
+                            throw new System.Exception(string.Format("Ignore action event in '{0}' has event '{1}' that is used by a transition", state.Name, evt));
+                        }
+                    }
+
+                    stateModel.ignoreEvents.Add(new FsmEventModel{ name = ignore._event.Value });
                 }
             }
 

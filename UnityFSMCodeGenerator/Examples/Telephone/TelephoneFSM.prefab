@@ -106,12 +106,14 @@ MonoBehaviour:
         linkConstraint: 0
         colorIndex: 0
       actionData:
-        actionNames: []
-        customNames: []
-        actionEnabled: 
-        actionIsOpen: 
-        actionStartIndex: 
-        actionHashCodes: 
+        actionNames:
+        - UnityFSMCodeGenerator.Actions.InternalAction
+        customNames:
+        - 
+        actionEnabled: 01
+        actionIsOpen: 01
+        actionStartIndex: 00000000
+        actionHashCodes: c8ed5705
         unityObjectParams: []
         fsmGameObjectParams: []
         fsmOwnerDefaultParams: []
@@ -121,7 +123,25 @@ MonoBehaviour:
         fsmEventTargetParams: []
         fsmPropertyParams: []
         layoutOptionParams: []
-        fsmStringParams: []
+        fsmStringParams:
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: Received Text
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: UnityFSMCodeGenerator.Examples.IHaptics
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: void Pulse ()
         fsmObjectParams: []
         fsmVarParams: []
         fsmArrayParams: []
@@ -140,10 +160,13 @@ MonoBehaviour:
         arrayParamTypes: []
         customTypeSizes: 
         customTypeNames: []
-        paramDataType: 
-        paramName: []
-        paramDataPos: 
-        paramByteDataSize: 
+        paramDataType: 120000001200000012000000
+        paramName:
+        - _event
+        - delegateInterface
+        - methodSignature
+        paramDataPos: 000000000100000002000000
+        paramByteDataSize: 000000000000000000000000
     - name: Ringing
       description: 
       colorIndex: 0
@@ -178,14 +201,16 @@ MonoBehaviour:
         - UnityFSMCodeGenerator.Actions.OnEntryAction
         - UnityFSMCodeGenerator.Actions.OnEntryAction
         - UnityFSMCodeGenerator.Actions.OnExitAction
+        - UnityFSMCodeGenerator.Actions.IgnoreEventAction
         customNames:
         - 
         - 
         - 
-        actionEnabled: 010101
-        actionIsOpen: 010101
-        actionStartIndex: 000000000200000004000000
-        actionHashCodes: a4b08a01a4b08a01a4b08a01
+        - 
+        actionEnabled: 01010101
+        actionIsOpen: 01010101
+        actionStartIndex: 00000000020000000400000006000000
+        actionHashCodes: a4b08a01a4b08a01a4b08a01c8ed5705
         unityObjectParams: []
         fsmGameObjectParams: []
         fsmOwnerDefaultParams: []
@@ -232,6 +257,24 @@ MonoBehaviour:
           showInInspector: 0
           networkSync: 0
           value: void StopRinging ()
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 
         fsmObjectParams: []
         fsmVarParams: []
         fsmArrayParams: []
@@ -250,7 +293,7 @@ MonoBehaviour:
         arrayParamTypes: []
         customTypeSizes: 
         customTypeNames: []
-        paramDataType: 120000001200000012000000120000001200000012000000
+        paramDataType: 120000001200000012000000120000001200000012000000120000001200000012000000
         paramName:
         - delegateInterface
         - methodSignature
@@ -258,8 +301,11 @@ MonoBehaviour:
         - methodSignature
         - delegateInterface
         - methodSignature
-        paramDataPos: 000000000100000002000000030000000400000005000000
-        paramByteDataSize: 000000000000000000000000000000000000000000000000
+        - _event
+        - delegateInterface
+        - methodSignature
+        paramDataPos: 000000000100000002000000030000000400000005000000060000000700000008000000
+        paramByteDataSize: 000000000000000000000000000000000000000000000000000000000000000000000000
     - name: Connected
       description: 
       colorIndex: 0
@@ -300,12 +346,14 @@ MonoBehaviour:
       actionData:
         actionNames:
         - UnityFSMCodeGenerator.Actions.OnEntryAction
+        - UnityFSMCodeGenerator.Actions.InternalAction
         customNames:
         - 
-        actionEnabled: 01
-        actionIsOpen: 01
-        actionStartIndex: 00000000
-        actionHashCodes: a4b08a01
+        - 
+        actionEnabled: 0101
+        actionIsOpen: 0101
+        actionStartIndex: 0000000002000000
+        actionHashCodes: a4b08a01c8ed5705
         unityObjectParams: []
         fsmGameObjectParams: []
         fsmOwnerDefaultParams: []
@@ -328,6 +376,24 @@ MonoBehaviour:
           showInInspector: 0
           networkSync: 0
           value: void ConnectedToCall ()
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: Received Text
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: UnityFSMCodeGenerator.Examples.IHaptics
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: void Pulse ()
         fsmObjectParams: []
         fsmVarParams: []
         fsmArrayParams: []
@@ -346,12 +412,15 @@ MonoBehaviour:
         arrayParamTypes: []
         customTypeSizes: 
         customTypeNames: []
-        paramDataType: 1200000012000000
+        paramDataType: 1200000012000000120000001200000012000000
         paramName:
         - delegateInterface
         - methodSignature
-        paramDataPos: 0000000001000000
-        paramByteDataSize: 0000000000000000
+        - _event
+        - delegateInterface
+        - methodSignature
+        paramDataPos: 0000000001000000020000000300000004000000
+        paramByteDataSize: 0000000000000000000000000000000000000000
     - name: On Hold
       description: 
       colorIndex: 0
@@ -384,12 +453,14 @@ MonoBehaviour:
       actionData:
         actionNames:
         - UnityFSMCodeGenerator.Actions.OnEntryAction
+        - UnityFSMCodeGenerator.Actions.InternalAction
         customNames:
         - 
-        actionEnabled: 01
-        actionIsOpen: 01
-        actionStartIndex: 00000000
-        actionHashCodes: a4b08a01
+        - 
+        actionEnabled: 0101
+        actionIsOpen: 0101
+        actionStartIndex: 0000000002000000
+        actionHashCodes: a4b08a01c8ed5705
         unityObjectParams: []
         fsmGameObjectParams: []
         fsmOwnerDefaultParams: []
@@ -412,6 +483,24 @@ MonoBehaviour:
           showInInspector: 0
           networkSync: 0
           value: void SuspendCall ()
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: Received Text
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: UnityFSMCodeGenerator.Examples.IHaptics
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: void Pulse ()
         fsmObjectParams: []
         fsmVarParams: []
         fsmArrayParams: []
@@ -430,12 +519,15 @@ MonoBehaviour:
         arrayParamTypes: []
         customTypeSizes: 
         customTypeNames: []
-        paramDataType: 1200000012000000
+        paramDataType: 1200000012000000120000001200000012000000
         paramName:
         - delegateInterface
         - methodSignature
-        paramDataPos: 0000000001000000
-        paramByteDataSize: 0000000000000000
+        - _event
+        - delegateInterface
+        - methodSignature
+        paramDataPos: 0000000001000000020000000300000004000000
+        paramByteDataSize: 0000000000000000000000000000000000000000
     - name: Disconnect Call
       description: 
       colorIndex: 0
@@ -460,12 +552,14 @@ MonoBehaviour:
       actionData:
         actionNames:
         - UnityFSMCodeGenerator.Actions.OnEntryAction
+        - UnityFSMCodeGenerator.Actions.IgnoreEventAction
         customNames:
         - 
-        actionEnabled: 01
-        actionIsOpen: 01
-        actionStartIndex: 00000000
-        actionHashCodes: a4b08a01
+        - 
+        actionEnabled: 0101
+        actionIsOpen: 0101
+        actionStartIndex: 0000000002000000
+        actionHashCodes: a4b08a01c8ed5705
         unityObjectParams: []
         fsmGameObjectParams: []
         fsmOwnerDefaultParams: []
@@ -488,6 +582,24 @@ MonoBehaviour:
           showInInspector: 0
           networkSync: 0
           value: void DisconnectCall ()
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 
+        - useVariable: 0
+          name: 
+          tooltip: 
+          showInInspector: 0
+          networkSync: 0
+          value: 
         fsmObjectParams: []
         fsmVarParams: []
         fsmArrayParams: []
@@ -506,12 +618,15 @@ MonoBehaviour:
         arrayParamTypes: []
         customTypeSizes: 
         customTypeNames: []
-        paramDataType: 1200000012000000
+        paramDataType: 1200000012000000120000001200000012000000
         paramName:
         - delegateInterface
         - methodSignature
-        paramDataPos: 0000000001000000
-        paramByteDataSize: 0000000000000000
+        - _event
+        - delegateInterface
+        - methodSignature
+        paramDataPos: 0000000001000000020000000300000004000000
+        paramByteDataSize: 0000000000000000000000000000000000000000
     events:
     - name: Call Connected
       isSystemEvent: 0
@@ -529,6 +644,9 @@ MonoBehaviour:
       isSystemEvent: 0
       isGlobal: 0
     - name: On Hold
+      isSystemEvent: 0
+      isGlobal: 0
+    - name: Received Text
       isSystemEvent: 0
       isGlobal: 0
     globalTransitions: []
@@ -561,7 +679,7 @@ MonoBehaviour:
     locked: 0
     manualUpdate: 0
     keepDelayedEventsOnStateExit: 0
-    preprocessed: 0
+    preprocessed: 1
     ExposedEvents: []
     RestartOnEnable: 1
     EnableDebugFlow: 0

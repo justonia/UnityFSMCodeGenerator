@@ -60,5 +60,21 @@ namespace UnityFSMCodeGenerator.Editor
             return base.OnGUI() || eventChanged;
         }
     }
+
+    [CustomActionEditor(typeof(IgnoreEventAction))]
+    public class IgnoreEventEditor : BaseFsmActionEditor
+    {
+        public override bool OnGUI()
+        {
+            var action = (target as IgnoreEventAction);
+            if (action._event == null) {
+                action._event = new FsmString();
+            }
+
+            var eventChanged = EditEventField("Event", action.Fsm, action._event);
+
+            return eventChanged;
+        }
+    }
 }
 #endif

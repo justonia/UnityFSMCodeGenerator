@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace UnityFSMCodeGenerator.Examples
 {
-    // This FSM controls the volume of the phone.
+    // Controls the volume of the phone. It demonstrates the use of the IgnoreEventAction since in the UI you are able to spam the volume up/down buttons and send continuous events to the FSM. Telephone.cs adds an artificial delay to changing the volume to allow this behavior.
     public class TelephoneVolumeFSM :  UnityFSMCodeGenerator.BaseFsm,
         UnityFSMCodeGenerator.IFsmIntrospectionSupport,
         UnityFSMCodeGenerator.IFsmDebugSupport
@@ -160,7 +160,7 @@ namespace UnityFSMCodeGenerator.Examples
                     }
                     break;        
                 default:
-                    if (!HandleInternalActions(from, _event)) {
+                    if (!HandleInternalActions(from, _event) && !IsEventIgnored(from, _event)) {
                         throw new System.Exception(string.Format("Unhandled event '{0}' in state '{1}'", _event.ToString(), context.State.ToString()));
                     }
                     break;
@@ -175,7 +175,7 @@ namespace UnityFSMCodeGenerator.Examples
                     }
                     break;        
                 default:
-                    if (!HandleInternalActions(from, _event)) {
+                    if (!HandleInternalActions(from, _event) && !IsEventIgnored(from, _event)) {
                         throw new System.Exception(string.Format("Unhandled event '{0}' in state '{1}'", _event.ToString(), context.State.ToString()));
                     }
                     break;
@@ -190,7 +190,7 @@ namespace UnityFSMCodeGenerator.Examples
                     }
                     break;        
                 default:
-                    if (!HandleInternalActions(from, _event)) {
+                    if (!HandleInternalActions(from, _event) && !IsEventIgnored(from, _event)) {
                         throw new System.Exception(string.Format("Unhandled event '{0}' in state '{1}'", _event.ToString(), context.State.ToString()));
                     }
                     break;
@@ -206,6 +206,48 @@ namespace UnityFSMCodeGenerator.Examples
         {
             // no states have internal actions, intentionally empty
             return false;
+        }
+    
+    
+        
+        private bool IsEventIgnored(State state, Event _event)
+        {
+            var ignored = false;
+        
+            switch (state) {
+            case State.WaitForEvent:
+                switch (_event) {        
+                case Event.VolumeChanged:
+                    ignored = true;
+                    break;
+                }
+                break;
+        
+            case State.VolumeUp:
+                switch (_event) {        
+                case Event.VolumeUp:
+                    ignored = true;
+                    break;        
+                case Event.VolumeDown:
+                    ignored = true;
+                    break;
+                }
+                break;
+        
+            case State.VolumeDown:
+                switch (_event) {        
+                case Event.VolumeUp:
+                    ignored = true;
+                    break;        
+                case Event.VolumeDown:
+                    ignored = true;
+                    break;
+                }
+                break;
+        
+            }
+        
+            return ignored;
         }
     
     
@@ -230,7 +272,7 @@ namespace UnityFSMCodeGenerator.Examples
                 if (onBreakpointHit != null) {
                     onBreakpointHit(this, state);
                 }
-                // IMPORTANT: This is not the same as setting a breakpoint in Visual Studio. This method
+                // NOTE: This is not the same as setting a breakpoint in Visual Studio. This method
                 // will continue executing and the editor will pause at some point later in the frame.
                 UnityEngine.Debug.Break();
             }
