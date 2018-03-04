@@ -51,7 +51,7 @@ Additionally there is no reflection used at runtime (only when parsing and build
 
 Once a C# FSM is generated from a PlayMaker FSM, you can copy and paste and share the C# FSM code as it has zero dependencies on PlayMaker (or even Unity). 
 
-Additionally, if you hate yourself or are too cheap or broke to spend $65 on PlayMaker, you can manually create the data model used by the code generator. I wouldn't recommend it though. It's possible I could implement an add-on to the tool that could parse out a Mechanim state machine and give roughly the same workflow as the PlayMaker one, but don't count on it.
+Additionally, if you are persistent and don't own a copy of PlayMaker (get it, seriously), you can manually create the data model used by the code generator. I wouldn't recommend it though. It's possible I could implement an add-on to the tool that could parse out a Mechanim state machine and give roughly the same workflow as the PlayMaker one, but don't count on it.
 
 ## How to Use
 
