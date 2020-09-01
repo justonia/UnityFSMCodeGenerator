@@ -739,7 +739,7 @@ public class {{cls}} :  UnityFSMCodeGenerator.BaseFsm{{implementinterfaces}}
     private readonly string introspectionSupportTemplate = @"
 #region IFsmIntrospectionSupport
 
-string IFsmIntrospectionSupport.GeneratedFromPrefabGUID { get { return GeneratedFromGUID; }}
+string UnityFSMCodeGenerator.IFsmIntrospectionSupport.GeneratedFromPrefabGUID { get { return GeneratedFromGUID; }}
 
 private Dictionary<State, string> introspectionStateLookup = new Dictionary<State, string>(new StateComparer()){
 {{statelookups}}};
